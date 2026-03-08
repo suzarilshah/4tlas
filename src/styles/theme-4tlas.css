@@ -1,0 +1,29 @@
+
+/* Generic Table Styling in Panels */
+.panel-content table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.panel-content th {
+  text-align: left;
+  color: var(--text-secondary) !important;
+  font-weight: var(--font-weight-medium) !important;
+  font-size: var(--font-size-caption) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: var(--space-8) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  background: transparent !important;
+}
+
+.panel-content td {
+  padding: var(--space-8) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+  font-size: 13px !important; /* Slightly smaller for density */
+}
+
+.panel-content tr:hover td {
+  background: rgba(255, 255, 255, 0.05) !important;
+}

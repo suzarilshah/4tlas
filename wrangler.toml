@@ -1,0 +1,30 @@
+# Cloudflare Workers configuration for World Monitor
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "worldmonitor-api"
+main = "workers/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Account ID
+account_id = "9d33e2aef5eb3d00f0e0a4c32ec9868e"
+
+# KV Namespaces for caching (replaces Upstash Redis)
+[[kv_namespaces]]
+binding = "CACHE"
+id = "f3d535ccde5a4d7daab746fc4bac57fd"
+preview_id = "63f973f996044c2d9860ae40590e9dd0"
+
+# Environment variables (secrets should be set via: wrangler secret put VAR_NAME)
+[vars]
+ENVIRONMENT = "production"
+
+# Development settings
+[dev]
+port = 8787
+local_protocol = "http"
+
+# Routes for custom domain (configure after adding domain to Cloudflare)
+# [[routes]]
+# pattern = "api.worldmonitor.app/*"
+# zone_name = "worldmonitor.app"
