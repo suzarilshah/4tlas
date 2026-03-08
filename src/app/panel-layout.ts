@@ -733,6 +733,22 @@ export class PanelLayoutManager implements AppModule {
         undefined,
         _lockPanels ? [t('premium.features.telegramIntel1'), t('premium.features.telegramIntel2')] : undefined,
       );
+
+      this.lazyPanel('space-weather', () =>
+        import('@/components/SpaceWeatherPanel').then(m => new m.SpaceWeatherPanel()),
+      );
+
+      this.lazyPanel('health-outbreaks', () =>
+        import('@/components/HealthOutbreaksPanel').then(m => new m.HealthOutbreaksPanel()),
+      );
+
+      this.lazyPanel('election-calendar', () =>
+        import('@/components/ElectionCalendarPanel').then(m => new m.ElectionCalendarPanel()),
+      );
+
+      this.lazyPanel('shipping-stress', () =>
+        import('@/components/ShippingStressPanel').then(m => new m.ShippingStressPanel()),
+      );
     }
 
     if (SITE_VARIANT === 'finance') {

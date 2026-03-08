@@ -75,6 +75,9 @@ import { fetchConflictEvents, fetchUcdpClassifications, fetchHapiSummary, fetchU
 import { fetchUnhcrPopulation } from '@/services/displacement';
 import { fetchClimateAnomalies } from '@/services/climate';
 import { fetchSecurityAdvisories } from '@/services/security-advisories';
+import { fetchSpaceWeather } from '@/services/space-weather';
+import { fetchHealthOutbreaks } from '@/services/health-outbreaks';
+import { fetchShippingStress } from '@/services/shipping-stress';
 import { fetchTelegramFeed } from '@/services/telegram-intel';
 import { fetchOrefAlerts, startOrefPolling, stopOrefPolling, onOrefAlertsUpdate } from '@/services/oref-alerts';
 import { enrichEventsWithExposure } from '@/services/population-exposure';
@@ -1451,6 +1454,54 @@ export class DataLoaderManager implements AppModule {
         startOrefPolling();
       } catch (error) {
         console.error('[Intelligence] OREF alerts fetch failed:', error);
+      }
+    })());
+
+    // Space Weather (NOAA SWPC)
+    tasks.push((async () => {
+      try {
+        const result = await fetchSpaceWeather();
+        if (result.ok && result.data) {
+          this.callPanel('space-weather', 'setData', result.data);
+        } else {
+          this.callPanel('space-weather', 'setError', result.error || 'No data available');
+        }
+      } catch (error) {
+        console.error('[Intelligence] Space weather fetch failed:', error);
+        this.callPanel('space-weather', 'setError', String(error));
+      }
+    })());
+
+    // Health Outbreaks (WHO, CDC, etc.)
+    tasks.push((async () => {
+      try {
+        const result = await fetchHealthOutbreaks();
+        if (result.ok && result.data) {
+          this.callPanel('health-outbreaks', 'setData', result.data);
+        } else {
+          this.callPanel('health-outbreaks', 'setError', result.error || 'No data available');
+        }
+      } catch (error) {
+        console.error('[Intelligence] Health outbreaks fetch failed:', error);
+        this.callPanel('health-outbreaks', 'setError', String(error));
+      }
+    })());
+
+    // Election Calendar (local data, no fetch needed - panel loads itself)
+    // The ElectionCalendarPanel calls loadData() in its constructor
+
+    // Shipping Stress Index
+    tasks.push((async () => {
+      try {
+        const result = await fetchShippingStress();
+        if (result.ok && result.data) {
+          this.callPanel('shipping-stress', 'setData', result.data);
+        } else {
+          this.callPanel('shipping-stress', 'setError', result.error || 'No data available');
+        }
+      } catch (error) {
+        console.error('[Intelligence] Shipping stress fetch failed:', error);
+        this.callPanel('shipping-stress', 'setError', String(error));
       }
     })());
 

@@ -60,6 +60,10 @@ const FULL_PANELS: Record<string, PanelConfig> = {
   'airline-intel': { name: 'Airline Intelligence', enabled: true, priority: 2 },
   'tech-readiness': { name: 'Tech Readiness Index', enabled: true, priority: 2 },
   'world-clock': { name: 'World Clock', enabled: true, priority: 2 },
+  'space-weather': { name: 'Space Weather', enabled: true, priority: 2 },
+  'health-outbreaks': { name: 'Health Alerts', enabled: true, priority: 2 },
+  'election-calendar': { name: 'Elections', enabled: true, priority: 2 },
+  'shipping-stress': { name: 'Shipping Index', enabled: true, priority: 2 },
 };
 
 const FULL_MAP_LAYERS: MapLayers = {
@@ -847,7 +851,7 @@ export const PANEL_CATEGORY_MAP: Record<string, { labelKey: string; panelKeys: s
   },
   dataTracking: {
     labelKey: 'header.panelCatDataTracking',
-    panelKeys: ['monitors', 'satellite-fires', 'ucdp-events', 'displacement', 'climate', 'population-exposure', 'security-advisories', 'oref-sirens', 'world-clock', 'tech-readiness'],
+    panelKeys: ['monitors', 'satellite-fires', 'ucdp-events', 'displacement', 'climate', 'population-exposure', 'security-advisories', 'oref-sirens', 'world-clock', 'tech-readiness', 'space-weather', 'health-outbreaks', 'election-calendar', 'shipping-stress'],
     variants: ['full'],
   },
 

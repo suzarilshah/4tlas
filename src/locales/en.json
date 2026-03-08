@@ -268,7 +268,11 @@
     "gulfIndices": "Gulf Indices",
     "gulfCurrencies": "Gulf Currencies",
     "gulfOil": "Gulf Oil",
-    "airlineIntel": "✈️ Airline Intelligence"
+    "airlineIntel": "✈️ Airline Intelligence",
+    "spaceWeather": "Space Weather",
+    "healthOutbreaks": "Health Alerts",
+    "electionCalendar": "Elections",
+    "shippingStress": "Shipping Index"
   },
   "commands": {
     "prefixes": {
@@ -1453,6 +1457,50 @@
         "normal": "NORMAL"
       },
       "infoTooltip": "<strong>Climate Anomaly Monitor</strong> Temperature and precipitation deviations from 30-day baseline. Data from Open-Meteo (ERA5 reanalysis).<ul><li><strong>Extreme</strong>: >5°C or >80mm/day deviation</li><li><strong>Moderate</strong>: >3°C or >40mm/day deviation</li></ul>Monitors 15 conflict/disaster-prone zones."
+    },
+    "spaceWeather": {
+      "infoTooltip": "Real-time solar activity from NOAA Space Weather Prediction Center. Monitors Kp index, solar flares, and geomagnetic storms.",
+      "noData": "No space weather data available",
+      "kpIndex": "Kp Index",
+      "solarFlare": "Solar Flare",
+      "last24h": "Last 24 hours",
+      "alerts": "Alerts",
+      "noAlerts": "No active alerts",
+      "source": "Source",
+      "flareLevel": {
+        "extreme": "Extreme",
+        "major": "Major",
+        "moderate": "Moderate",
+        "minor": "Minor",
+        "quiet": "Quiet"
+      }
+    },
+    "healthOutbreaks": {
+      "infoTooltip": "Disease outbreak alerts from WHO, CDC, and health organizations. Flags high-concern pathogens like Ebola, H5N1, and Mpox.",
+      "noAlerts": "No health alerts",
+      "highConcern": "High Concern",
+      "total": "Total",
+      "sources": "Sources"
+    },
+    "elections": {
+      "infoTooltip": "Upcoming global elections with instability risk scoring. Higher scores indicate elections closer in time with higher potential impact.",
+      "noElections": "No upcoming elections",
+      "imminent": "Imminent",
+      "upcoming": "Upcoming",
+      "highestRisk": "Highest Risk",
+      "upcomingElections": "Upcoming Elections",
+      "risk": "Risk",
+      "error": "Failed to load election data"
+    },
+    "shipping": {
+      "infoTooltip": "Global shipping stress index based on dry bulk ETF volatility. High volatility indicates supply chain disruptions.",
+      "noData": "No shipping data available",
+      "stressIndex": "Stress Index",
+      "dryBulkETFs": "Shipping ETFs",
+      "symbol": "Symbol",
+      "price": "Price",
+      "change": "Change",
+      "source": "Source"
     },
     "newsPanel": {
       "close": "Close",
