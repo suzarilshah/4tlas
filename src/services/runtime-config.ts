@@ -2,6 +2,9 @@ import { getApiBaseUrl, isDesktopRuntime } from './runtime';
 import { invokeTauri } from './tauri-bridge';
 
 export type RuntimeSecretKey =
+  | 'AZURE_OPENAI_ENDPOINT'
+  | 'AZURE_OPENAI_API_KEY'
+  | 'AZURE_OPENAI_DEPLOYMENT'
   | 'GROQ_API_KEY'
   | 'OPENROUTER_API_KEY'
   | 'FRED_API_KEY'
@@ -28,6 +31,7 @@ export type RuntimeSecretKey =
   | 'ICAO_API_KEY';
 
 export type RuntimeFeatureId =
+  | 'aiAzure'
   | 'aiGroq'
   | 'aiOpenRouter'
   | 'economicFred'
@@ -81,6 +85,7 @@ function getSidecarSecretValidateUrl(): string {
 }
 
 const defaultToggles: Record<RuntimeFeatureId, boolean> = {
+  aiAzure: true,
   aiGroq: true,
   aiOpenRouter: true,
   economicFred: true,
@@ -105,6 +110,13 @@ const defaultToggles: Record<RuntimeFeatureId, boolean> = {
 };
 
 export const RUNTIME_FEATURES: RuntimeFeatureDefinition[] = [
+  {
+    id: 'aiAzure',
+    name: 'Azure AI Foundry (Microsoft)',
+    description: 'Microsoft Azure AI Foundry / Azure OpenAI for AI summarization. Supports GPT-4o, GPT-4o-mini, and other deployed models.',
+    requiredSecrets: ['AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY'],
+    fallback: 'Falls back to Ollama, Groq, OpenRouter, then local browser model.',
+  },
   {
     id: 'aiOllama',
     name: 'Ollama local summarization',
@@ -273,6 +285,7 @@ function readStoredToggles(): Record<RuntimeFeatureId, boolean> {
 }
 
 const URL_SECRET_KEYS = new Set<RuntimeSecretKey>([
+  'AZURE_OPENAI_ENDPOINT',
   'WS_RELAY_URL',
   'VITE_OPENSKY_RELAY_URL',
   'OLLAMA_API_URL',

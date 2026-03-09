@@ -12,9 +12,10 @@ interface CountryHit {
   name: string;
 }
 
-const COUNTRY_GEOJSON_URL = '/data/countries.geojson';
+/** Natural Earth 110m country boundaries (public domain) */
+const COUNTRY_GEOJSON_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
 
-/** Optional higher-resolution boundary overrides sourced from Natural Earth. */
+/** Optional higher-resolution boundary overrides for specific countries */
 const COUNTRY_OVERRIDES_URL = '/data/country-boundary-overrides.geojson';
 const COUNTRY_OVERRIDE_TIMEOUT_MS = 3_000;
 

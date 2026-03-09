@@ -1,7 +1,7 @@
-# Cloudflare Workers configuration for World Monitor
+# Cloudflare Workers configuration for 4TLAS API
 # https://developers.cloudflare.com/workers/wrangler/configuration/
 
-name = "worldmonitor-api"
+name = "4tlas-api"
 main = "workers/index.ts"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
@@ -16,6 +16,10 @@ id = "f3d535ccde5a4d7daab746fc4bac57fd"
 preview_id = "63f973f996044c2d9860ae40590e9dd0"
 
 # Environment variables (secrets should be set via: wrangler secret put VAR_NAME)
+# Required for Azure AI Foundry:
+#   wrangler secret put AZURE_OPENAI_ENDPOINT
+#   wrangler secret put AZURE_OPENAI_API_KEY
+#   wrangler secret put AZURE_OPENAI_DEPLOYMENT (optional, defaults to gpt-4o-mini)
 [vars]
 ENVIRONMENT = "production"
 
@@ -23,8 +27,3 @@ ENVIRONMENT = "production"
 [dev]
 port = 8787
 local_protocol = "http"
-
-# Routes for custom domain (configure after adding domain to Cloudflare)
-# [[routes]]
-# pattern = "api.worldmonitor.app/*"
-# zone_name = "worldmonitor.app"

@@ -134,6 +134,30 @@ export interface ProviderCredentials {
 }
 
 export function getProviderCredentials(provider: string): ProviderCredentials | null {
+  // Azure AI Foundry (Microsoft Foundry) - OpenAI-compatible endpoint
+  if (provider === 'azure') {
+    const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+    const apiKey = process.env.AZURE_OPENAI_API_KEY;
+    if (!endpoint || !apiKey) return null;
+
+    // Azure AI Foundry supports multiple endpoint formats:
+    // - https://{resource}.openai.azure.com/openai/v1/chat/completions
+    // - https://{resource}.services.ai.azure.com/openai/v1/chat/completions
+    const baseUrl = endpoint.replace(/\/$/, '');
+    const apiUrl = baseUrl.includes('/openai/')
+      ? `${baseUrl}/chat/completions`
+      : `${baseUrl}/openai/v1/chat/completions`;
+
+    return {
+      apiUrl,
+      model: process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini',
+      headers: {
+        'api-key': apiKey,
+        'Content-Type': 'application/json',
+      },
+    };
+  }
+
   if (provider === 'ollama') {
     const baseUrl = process.env.OLLAMA_API_URL;
     if (!baseUrl) return null;
@@ -174,8 +198,8 @@ export function getProviderCredentials(provider: string): ProviderCredentials | 
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://worldmonitor.app',
-        'X-Title': 'WorldMonitor',
+        'HTTP-Referer': 'https://4tlas.pages.dev',
+        'X-Title': '4TLAS',
       },
     };
   }

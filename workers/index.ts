@@ -27,22 +27,20 @@ const BOT_UA = /bot|crawl|spider|slurp|archiver|wget|curl\/|python-requests|scra
 
 // CORS headers
 function corsHeaders(origin: string | null): HeadersInit {
-  const allowedOrigins = [
-    'https://worldmonitor.app',
-    'https://tech.worldmonitor.app',
-    'https://finance.worldmonitor.app',
-    'https://happy.worldmonitor.app',
-    'https://worldmonitor-ag4.pages.dev',
-    'http://localhost:5173',
-    'http://localhost:4173',
-  ];
+  // Allow 4tlas.pages.dev and all deployment preview URLs (*.4tlas.pages.dev)
+  const isAllowed = origin && (
+    origin === 'https://4tlas.pages.dev' ||
+    origin.endsWith('.4tlas.pages.dev') ||
+    origin === 'http://localhost:5173' ||
+    origin === 'http://localhost:4173'
+  );
 
-  const allowOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  const allowOrigin = isAllowed ? origin : 'https://4tlas.pages.dev';
 
   return {
     'Access-Control-Allow-Origin': allowOrigin!,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-WorldMonitor-Key',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-4TLAS-Key',
     'Access-Control-Max-Age': '86400',
   };
 }

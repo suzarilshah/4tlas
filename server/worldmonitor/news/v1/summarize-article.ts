@@ -48,6 +48,7 @@ export async function summarizeArticle(
 
   // Provider credential check
   const skipReasons: Record<string, string> = {
+    azure: 'AZURE_OPENAI_ENDPOINT or AZURE_OPENAI_API_KEY not configured',
     ollama: 'OLLAMA_API_URL not configured',
     groq: 'GROQ_API_KEY not configured',
     openrouter: 'OPENROUTER_API_KEY not configured',
