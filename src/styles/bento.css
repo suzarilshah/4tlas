@@ -550,19 +550,51 @@
   align-content: start;
 }
 
-/* ── Map Section as Bento Card ── */
+/* ── Map Section as Bento Card - Large 2x2 ── */
 .bento-dashboard .bento-card.bento-map {
-  grid-column: span 1;
+  grid-column: span 2;
   grid-row: span 2;
-  min-height: 400px;
+  min-height: 450px;
   max-height: none;
   height: auto;
+  order: -1; /* Push map to start */
 }
 
 .bento-dashboard .bento-map .map-container {
   position: absolute;
   inset: 0;
   border-radius: 0 0 var(--bento-radius, 20px) var(--bento-radius, 20px);
+}
+
+/* ── Map Resize Handle - Re-enable for bento ── */
+.bento-dashboard .bento-map .map-resize-handle {
+  display: flex !important;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 12px;
+  cursor: ns-resize;
+  background: transparent;
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 var(--bento-radius, 20px) var(--bento-radius, 20px);
+}
+
+.bento-dashboard .bento-map .map-resize-handle::after {
+  content: '';
+  width: 48px;
+  height: 4px;
+  background: var(--text-dim);
+  border-radius: 3px;
+  opacity: 0.4;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.bento-dashboard .bento-map .map-resize-handle:hover::after {
+  opacity: 1;
+  background: var(--accent, #4488ff);
 }
 
 /* ── Panels Grid as Inline Bento ── */
@@ -669,7 +701,7 @@
 .bento-dashboard .panel[data-panel="live-news"] {
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.03) 100%);
   border-color: rgba(239, 68, 68, 0.15);
-  grid-column: span 2;
+  grid-column: 3 / 5; /* Position on right side, columns 3-4 */
   grid-row: span 2;
 }
 
@@ -702,7 +734,12 @@
   }
 
   .bento-dashboard .bento-map {
+    grid-column: span 2;
+  }
+
+  .bento-dashboard .panel[data-panel="live-news"] {
     grid-column: span 1;
+    grid-row: span 2;
   }
 
   .bento-dashboard .panel.col-span-3 {

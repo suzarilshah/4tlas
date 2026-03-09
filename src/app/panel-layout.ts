@@ -242,6 +242,7 @@ export class PanelLayoutManager implements AppModule {
           <div class="bento-card-content" style="padding: 0; position: relative;">
             <div class="map-container" id="mapContainer"></div>
             ${SITE_VARIANT === 'happy' ? '<button class="tv-exit-btn" id="tvExitBtn">Exit TV Mode</button>' : ''}
+            <div class="map-resize-handle" id="mapResizeHandle"></div>
           </div>
         </div>
         <!-- Panels Grid - Bento Layout -->
