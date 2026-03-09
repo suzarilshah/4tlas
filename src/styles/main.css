@@ -14449,26 +14449,27 @@ a.prediction-link:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  border: 1px solid var(--accent-muted, rgba(68, 136, 255, 0.4));
+  border-radius: 6px;
   background: var(--surface);
-  color: var(--text-dim);
+  color: var(--accent, #4488ff);
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s, transform 0.3s;
+  transition: color 0.2s, border-color 0.2s, transform 0.3s, background 0.2s;
 }
 
 .unified-settings-btn:hover {
-  color: var(--accent);
-  border-color: var(--text-faint);
-  transform: rotate(45deg);
+  color: #fff;
+  background: var(--accent, #4488ff);
+  border-color: var(--accent, #4488ff);
+  transform: rotate(90deg);
 }
 
 .unified-settings-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 .unified-settings-modal {

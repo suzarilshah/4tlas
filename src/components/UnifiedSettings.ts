@@ -166,6 +166,7 @@ export class UnifiedSettings {
     btn.className = 'unified-settings-btn';
     btn.id = 'unifiedSettingsBtn';
     btn.setAttribute('aria-label', t('header.settings'));
+    btn.setAttribute('title', t('header.settings') + ' - Customize panels');
     btn.innerHTML = GEAR_SVG;
     btn.addEventListener('click', () => this.open());
     return btn;
