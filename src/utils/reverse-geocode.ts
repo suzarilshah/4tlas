@@ -38,7 +38,7 @@ export async function reverseGeocode(lat: number, lon: number, signal?: AbortSig
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=3&accept-language=en`;
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'WorldMonitor/2.0 (https://worldmonitor.app)' },
+      headers: { 'User-Agent': '4TLAS/2.0' },
       signal: controller.signal,
     });
     if (!res.ok) {

@@ -47,6 +47,7 @@ import type { Platform } from '@/components/DownloadBanner';
 import { invokeTauri } from '@/services/tauri-bridge';
 import { dataFreshness } from '@/services/data-freshness';
 import { mlWorker } from '@/services/ml-worker';
+import { pruneAllCaches, clearAllCaches, isMemoryPressure } from '@/utils/memory-optimization';
 import { UnifiedSettings } from '@/components/UnifiedSettings';
 import { t } from '@/services/i18n';
 import { TvModeController } from '@/services/tv-mode';
@@ -330,8 +331,24 @@ export class EventHandlerManager implements AppModule {
       if (document.hidden) {
         this.callbacks.setHiddenSince(Date.now());
         mlWorker.unloadOptionalModels();
+
+        // Aggressively reclaim memory when tab is hidden
+        const pruned = pruneAllCaches();
+        if (pruned > 0) console.log(`[Memory] Tab hidden: pruned ${pruned} cache entries`);
+
+        // Pause map rendering to free GPU resources
+        this.ctx.map?.setRenderPaused(true);
+
+        // If under memory pressure, clear non-essential caches
+        if (isMemoryPressure(50)) {
+          console.warn('[Memory] Tab hidden + high memory: clearing all caches');
+          clearAllCaches();
+          this.ctx.cyberThreatsCache = null;
+          this.ctx.latestClusters = [];
+        }
       } else {
         this.resetIdleTimer();
+        this.ctx.map?.setRenderPaused(false);
         this.callbacks.flushStaleRefreshes();
       }
     };
@@ -403,13 +420,9 @@ export class EventHandlerManager implements AppModule {
             localStorage.setItem('worldmonitor-variant', variant);
             window.location.reload();
           } else {
-            const hosts: Record<string, string> = {
-              full: 'https://worldmonitor.app',
-              tech: 'https://tech.worldmonitor.app',
-              finance: 'https://finance.worldmonitor.app',
-              happy: 'https://happy.worldmonitor.app',
-            };
-            if (hosts[variant]) window.location.href = hosts[variant];
+            // Variant switching - reload page with variant stored in localStorage
+            localStorage.setItem('worldmonitor-variant', variant);
+            window.location.reload();
           }
         }
       });
@@ -510,6 +523,7 @@ export class EventHandlerManager implements AppModule {
       if (this.ctx.isIdle) {
         this.ctx.isIdle = false;
         document.body?.classList.remove('animations-paused');
+        this.ctx.map?.setRenderPaused(false);
       }
       this.resetIdleTimer();
     };
@@ -529,7 +543,9 @@ export class EventHandlerManager implements AppModule {
       if (!document.hidden) {
         this.ctx.isIdle = true;
         document.body?.classList.add('animations-paused');
-        console.log('[App] User idle - pausing animations to save resources');
+        this.ctx.map?.setRenderPaused(true);
+        pruneAllCaches();
+        console.log('[App] User idle - pausing animations and pruning caches');
       }
     }, this.idlePauseMs);
   }

@@ -721,7 +721,7 @@ export class Panel {
     if (isDesktopRuntime()) {
       ctaBtn.addEventListener('click', () => void invokeTauri<void>('open_settings_window_command').catch(() => {}));
     } else {
-      ctaBtn.addEventListener('click', () => window.open('https://worldmonitor.app/pro', '_blank'));
+      ctaBtn.addEventListener('click', () => {});
     }
     lockedChildren.push(ctaBtn);
 
@@ -996,5 +996,18 @@ export class Panel {
     this.element.classList.remove('resizing', 'col-resizing');
     delete this.element.dataset.resizing;
     document.body.classList.remove('panel-resize-active');
+
+    // MEMORY OPTIMIZATION: Clear DOM references to allow GC
+    // Per research: detached DOM nodes are common memory leak cause
+    this.content.innerHTML = '';
+    this.element.remove();
+
+    // Null out references to help garbage collector
+    this.countEl = null;
+    this.statusBadgeEl = null;
+    this.newBadgeEl = null;
+    this.resizeHandle = null;
+    this.colResizeHandle = null;
+    this.retryCallback = null;
   }
 }

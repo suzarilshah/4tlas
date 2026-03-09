@@ -1,4 +1,4 @@
-// Full geopolitical variant - worldmonitor.app
+// Full geopolitical variant - main dashboard
 import type { PanelConfig, MapLayers } from '@/types';
 import type { VariantConfig } from './base';
 

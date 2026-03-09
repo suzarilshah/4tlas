@@ -386,46 +386,37 @@ export class LiveNewsPanel extends Panel {
   private renderPlaceholder(): void {
     this.content.innerHTML = '';
     const container = document.createElement('div');
-    container.className = 'live-news-placeholder';
-    container.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;cursor:pointer;';
+    container.className = 'live-news-placeholder live-news-facade';
+
+    const videoId = this.activeChannel.fallbackVideoId || this.activeChannel.videoId;
+    if (videoId) {
+      container.style.backgroundImage = `url(https://i.ytimg.com/vi/${videoId}/hqdefault.jpg)`;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'live-news-facade-overlay';
+
+    const playIcon = document.createElement('div');
+    playIcon.className = 'live-news-facade-play';
+    playIcon.innerHTML = '<svg width="56" height="56" viewBox="0 0 24 24" fill="white" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
 
     const label = document.createElement('div');
-    label.style.cssText = 'color:var(--text-secondary);font-size:13px;';
+    label.className = 'live-news-facade-label';
     label.textContent = this.getChannelDisplayName(this.activeChannel);
 
-    const playBtn = document.createElement('button');
-    playBtn.className = 'offline-retry';
-    playBtn.textContent = 'Load Player';
-    playBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.triggerInit();
-    });
+    const hint = document.createElement('div');
+    hint.className = 'live-news-facade-hint';
+    hint.textContent = t('components.liveNews.clickToLoad') || 'Click to load player';
 
-    container.appendChild(label);
-    container.appendChild(playBtn);
+    overlay.append(playIcon, label, hint);
+    container.appendChild(overlay);
     container.addEventListener('click', () => this.triggerInit());
     this.content.appendChild(container);
   }
 
   private setupLazyInit(): void {
-    this.lazyObserver = new IntersectionObserver(
-      (entries) => {
-        if (entries.some(e => e.isIntersecting)) {
-          this.lazyObserver?.disconnect();
-          this.lazyObserver = null;
-          if ('requestIdleCallback' in window) {
-            this.idleCallbackId = (window as any).requestIdleCallback(
-              () => { this.idleCallbackId = null; this.triggerInit(); },
-              { timeout: 1000 },
-            );
-          } else {
-            this.idleCallbackId = setTimeout(() => { this.idleCallbackId = null; this.triggerInit(); }, 1000);
-          }
-        }
-      },
-      { threshold: 0.1 },
-    );
-    this.lazyObserver.observe(this.element);
+    // No auto-init: player loads only when user explicitly clicks.
+    // This saves ~150-250MB of memory from the YouTube iframe.
   }
 
   private triggerInit(): void {
@@ -463,7 +454,7 @@ export class LiveNewsPanel extends Panel {
 
   private get embedOrigin(): string {
     if (isDesktopRuntime()) return `http://localhost:${getLocalApiPort()}`;
-    try { return new URL(getRemoteApiBaseUrl()).origin; } catch { return 'https://worldmonitor.app'; }
+    try { return new URL(getRemoteApiBaseUrl()).origin; } catch { return window.location.origin; }
   }
 
   private setupBridgeMessageListener(): void {
@@ -500,9 +491,7 @@ export class LiveNewsPanel extends Panel {
   }
 
   private static resolveYouTubeOrigin(): string | null {
-    const fallbackOrigin = SITE_VARIANT === 'tech'
-      ? 'https://worldmonitor.app'
-      : 'https://worldmonitor.app';
+    const fallbackOrigin = window.location.origin;
 
     try {
       const { protocol, origin, host } = window.location;
