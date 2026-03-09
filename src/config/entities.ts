@@ -56,7 +56,7 @@ export const ENTITY_REGISTRY: EntityEntry[] = [
     type: 'company',
     name: 'Microsoft Corporation',
     aliases: ['microsoft', 'msft', 'satya nadella', 'windows', 'azure', 'xbox'],
-    keywords: ['azure', 'cloud', 'windows', 'office', 'copilot', 'openai', 'teams', 'github'],
+    keywords: ['azure', 'cloud', 'windows', 'office', 'copilot', 'openai', 'teams'],
     sector: 'Technology',
     related: ['AAPL', 'GOOGL', 'AMZN', 'NVDA'],
   },

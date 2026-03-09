@@ -13,11 +13,18 @@ import { isHeadlineMemoryEnabled } from './ai-flow-settings';
 
 const FEED_COOLDOWN_MS = 5 * 60 * 1000;
 const MAX_FAILURES = 2;
-const MAX_CACHE_ENTRIES = 100;
+const MAX_CACHE_ENTRIES = 60;
 const FEED_SCOPE_SEPARATOR = '::';
 const feedFailures = new Map<string, { count: number; cooldownUntil: number }>();
 const feedCache = new Map<string, { items: NewsItem[]; timestamp: number }>();
-const CACHE_TTL = 30 * 60 * 1000;
+const CACHE_TTL = 20 * 60 * 1000;
+
+function enforceFeedCacheLimit(): void {
+  if (feedCache.size <= MAX_CACHE_ENTRIES) return;
+  const entries = [...feedCache.entries()].sort((a, b) => a[1].timestamp - b[1].timestamp);
+  const toRemove = entries.slice(0, feedCache.size - MAX_CACHE_ENTRIES);
+  for (const [key] of toRemove) feedCache.delete(key);
+}
 
 function toSerializable(items: NewsItem[]): Array<Omit<NewsItem, 'pubDate'> & { pubDate: string }> {
   return items.map(item => ({ ...item, pubDate: item.pubDate.toISOString() }));
@@ -274,6 +281,7 @@ export async function fetchFeed(feed: Feed): Promise<NewsItem[]> {
       });
 
     feedCache.set(feedScope, { items: parsed, timestamp: Date.now() });
+    enforceFeedCacheLimit();
     void setPersistentCache(getPersistentFeedKey(feedScope), toSerializable(parsed));
     recordFeedSuccess(feedScope);
     ingestHeadlines(parsed.map(item => ({

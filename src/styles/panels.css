@@ -4,6 +4,115 @@
    on every panel refresh (PERF-012).
    ========================================================== */
 
+/* ==========================================================
+   PERFORMANCE OPTIMIZATIONS - Critical for memory reduction
+   Based on 2025 research: content-visibility gives 7x rendering boost
+   ========================================================== */
+
+/* Apply content-visibility to ALL panels for off-screen skip */
+.panel {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
+  contain: layout style paint;
+}
+
+/* Panels that are hidden should not render at all */
+.panel.hidden,
+.panel[style*="display: none"] {
+  content-visibility: hidden;
+  contain-intrinsic-size: 0 0;
+}
+
+/* Optimize scrollable content areas */
+.panel-content {
+  contain: strict;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
+}
+
+/* Reduce paint complexity for news items */
+.news-item,
+.news-entry,
+.intel-entry {
+  contain: layout style;
+  will-change: auto; /* Only hint when needed */
+}
+
+/* ==========================================================
+   WORLD INTEL PANEL - Highlighted Feature Panel
+   This is the consolidated 4-in-1 intel dashboard
+   ========================================================== */
+
+.panel[data-panel="world-intel"] {
+  /* Make it stand out */
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  box-shadow:
+    0 0 20px rgba(59, 130, 246, 0.15),
+    0 4px 20px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(20, 20, 30, 0.95) 0%,
+    rgba(15, 25, 45, 0.95) 100%
+  );
+  position: relative;
+  overflow: visible;
+}
+
+/* Glow effect for World Intel Panel */
+.panel[data-panel="world-intel"]::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.3) 0%,
+    rgba(139, 92, 246, 0.2) 50%,
+    rgba(59, 130, 246, 0.3) 100%
+  );
+  border-radius: inherit;
+  z-index: -1;
+  filter: blur(8px);
+  opacity: 0.6;
+  animation: world-intel-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes world-intel-glow {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.7; }
+}
+
+/* Badge to highlight this is a featured panel */
+.panel[data-panel="world-intel"] .panel-header::after {
+  content: '4-IN-1';
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+/* Enhanced tab styling for World Intel */
+.world-intel-panel .wi-tabs {
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.world-intel-panel .wi-tab.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-bottom-color: #3b82f6;
+  color: #3b82f6;
+}
+
 /* ----------------------------------------------------------
    Shared Panel Tabs (gold standard: Telegram Intel style)
    ---------------------------------------------------------- */
@@ -2070,73 +2179,10 @@
 }
 
 /* ----------------------------------------------------------
-   Map Bottom Grid (Large Screen Drop Zone)
+   Map Bottom Grid - REMOVED
+   Drop zone removed to reclaim screen space.
+   WorldIntelPanel now shows in main panels grid.
    ---------------------------------------------------------- */
-.map-bottom-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-flow: row dense;
-  grid-auto-rows: 1fr;
-  align-items: stretch;
-  gap: 8px;
-  padding: 12px;
-  background: color-mix(in srgb, var(--surface) 40%, var(--bg));
-  border-top: 1px solid var(--border);
-  flex: 1;
-  min-height: 120px;
-  overflow-y: auto;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-  position: relative;
-  z-index: 5;
-}
-
-/* Base state for placeholder */
-.map-bottom-grid::after {
-  content: 'Drop panels here to move them below the map';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 80%;
-  width: 90%;
-  border: 2px dashed var(--border);
-  border-radius: 8px;
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: 0.4;
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-
-/* Hide placeholder if there are panels */
-.map-bottom-grid:not(:empty)::after {
-  opacity: 0;
-}
-
-/* Highlight zone during drag (handled by JS if possible, but let's add a hover state too) */
-.map-bottom-grid:hover {
-  background: color-mix(in srgb, var(--surface) 60%, var(--bg));
-  border-top-color: var(--accent);
-}
-
-/* Hide drop zone completely on smaller screens (overridden by media query in main.css) */
-@media (max-width: 1599px) {
-  .map-bottom-grid {
-    display: none !important;
-  }
-}
-
-.map-bottom-grid .panel {
-  height: 100%;
-  min-height: 150px;
-}
 
 /* ----------------------------------------------------------
    Space Weather Panel
@@ -2742,6 +2788,31 @@
   color: var(--accent);
   border-bottom-color: var(--accent);
   background: var(--bg);
+}
+
+/* Colorful tab themes for each intel type */
+.wi-tab[data-tab="space"].active {
+  color: #f59e0b;
+  border-bottom-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.wi-tab[data-tab="health"].active {
+  color: #22c55e;
+  border-bottom-color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.wi-tab[data-tab="elections"].active {
+  color: #8b5cf6;
+  border-bottom-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.wi-tab[data-tab="shipping"].active {
+  color: #06b6d4;
+  border-bottom-color: #06b6d4;
+  background: rgba(6, 182, 212, 0.1);
 }
 
 .wi-tab-icon {

@@ -38,6 +38,7 @@ import { PanelLayoutManager } from '@/app/panel-layout';
 import { DataLoaderManager } from '@/app/data-loader';
 import { EventHandlerManager } from '@/app/event-handlers';
 import { resolveUserRegion, resolvePreciseUserCoordinates, type PreciseCoordinates } from '@/utils/user-location';
+import { registerMemoryPressureHandler } from '@/services/performance-optimizer';
 
 const CYBER_LAYER_ENABLED = import.meta.env.VITE_ENABLE_CYBER_LAYER === 'true';
 
@@ -493,6 +494,32 @@ export class App {
     this.eventHandlers.setupSnapshotSaving();
     cleanOldSnapshots().catch((e) => console.warn('[Storage] Snapshot cleanup failed:', e));
 
+    registerMemoryPressureHandler('app-data-trim', () => {
+      const s = this.state;
+      if (s.allNews.length > 500) {
+        s.allNews.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
+        s.allNews.length = 500;
+      }
+      if (s.happyAllItems.length > 200) {
+        s.happyAllItems.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
+        s.happyAllItems.length = 200;
+      }
+      if (s.latestClusters.length > 50) s.latestClusters.length = 50;
+      if (s.latestPredictions.length > 50) s.latestPredictions.length = 50;
+      s.cyberThreatsCache = null;
+      s.intelligenceCache = {};
+      for (const [cat, items] of Object.entries(s.newsByCategory)) {
+        if (items.length > 100) {
+          s.newsByCategory[cat] = items.slice(0, 100);
+        }
+      }
+      console.log('[Memory] App data trimmed under pressure');
+    }, 20);
+
+    registerMemoryPressureHandler('ml-worker-unload', () => {
+      mlWorker.unloadOptionalModels();
+    }, 30);
+
     // Phase 8: Update checks
     this.desktopUpdater.init();
 
@@ -589,29 +616,28 @@ export class App {
       ]);
     }
 
-    // Panel-level refreshes (moved from panel constructors into scheduler for hidden-tab awareness + jitter)
     this.refreshScheduler.scheduleRefresh(
       'service-status',
       () => (this.state.panels['service-status'] as ServiceStatusPanel).fetchStatus(),
-      60_000,
+      2 * 60_000,
       () => !!this.state.panels['service-status']
     );
     this.refreshScheduler.scheduleRefresh(
       'stablecoins',
       () => (this.state.panels['stablecoins'] as StablecoinPanel).fetchData(),
-      3 * 60_000,
+      5 * 60_000,
       () => !!this.state.panels['stablecoins']
     );
     this.refreshScheduler.scheduleRefresh(
       'etf-flows',
       () => (this.state.panels['etf-flows'] as ETFFlowsPanel).fetchData(),
-      3 * 60_000,
+      5 * 60_000,
       () => !!this.state.panels['etf-flows']
     );
     this.refreshScheduler.scheduleRefresh(
       'macro-signals',
       () => (this.state.panels['macro-signals'] as MacroSignalsPanel).fetchData(),
-      3 * 60_000,
+      5 * 60_000,
       () => !!this.state.panels['macro-signals']
     );
     this.refreshScheduler.scheduleRefresh(

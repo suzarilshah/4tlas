@@ -135,7 +135,7 @@ export interface ServiceStatusResponse {
 const CATEGORY_MAP: Record<string, string> = {
   aws: 'cloud', azure: 'cloud', gcp: 'cloud', cloudflare: 'cloud', vercel: 'cloud',
   netlify: 'cloud', digitalocean: 'cloud', render: 'cloud', railway: 'cloud',
-  github: 'dev', gitlab: 'dev', npm: 'dev', docker: 'dev', bitbucket: 'dev',
+  gitlab: 'dev', npm: 'dev', docker: 'dev', bitbucket: 'dev',
   circleci: 'dev', jira: 'dev', confluence: 'dev', linear: 'dev',
   slack: 'comm', discord: 'comm', zoom: 'comm', notion: 'comm',
   openai: 'ai', anthropic: 'ai', replicate: 'ai',

@@ -314,8 +314,8 @@ export function onMemoryPressure(callback: MemoryPressureCallback): () => void {
  * Start monitoring memory and trigger callbacks when pressure is detected
  */
 export function startMemoryMonitor(
-  intervalMs = 30000,
-  thresholdPercent = 70
+  intervalMs = 15000,
+  thresholdPercent = 50
 ): void {
   if (memoryMonitorInterval) return;
 
@@ -328,13 +328,17 @@ export function startMemoryMonitor(
         `[Memory] High usage detected: ${stats.usedMB}MB / ${stats.limitMB}MB (${stats.usagePercent}%)`
       );
 
-      // Auto-prune caches
       const pruned = pruneAllCaches();
       if (pruned > 0) {
         console.info(`[Memory] Pruned ${pruned} stale cache entries`);
       }
 
-      // Notify subscribers
+      // Critical threshold: clear everything non-essential
+      if (stats.usagePercent > 70) {
+        console.warn('[Memory] Critical threshold reached, clearing all caches');
+        clearAllCaches();
+      }
+
       for (const cb of pressureCallbacks) {
         try {
           cb(stats);
@@ -454,6 +458,33 @@ export function logMemoryStatus(): void {
   console.groupEnd();
 }
 
+// ─── Emergency Memory Release ────────────────────────────────────────────────
+
+type EmergencyReleaseCallback = () => void;
+const emergencyCallbacks: EmergencyReleaseCallback[] = [];
+
+/**
+ * Register a callback for emergency memory release (e.g., clearing large data arrays)
+ */
+export function onEmergencyRelease(callback: EmergencyReleaseCallback): () => void {
+  emergencyCallbacks.push(callback);
+  return () => {
+    const idx = emergencyCallbacks.indexOf(callback);
+    if (idx !== -1) emergencyCallbacks.splice(idx, 1);
+  };
+}
+
+/**
+ * Trigger emergency memory release - clears all caches and runs registered callbacks
+ */
+export function releaseMemory(): void {
+  console.warn('[Memory] Emergency release triggered');
+  clearAllCaches();
+  for (const cb of emergencyCallbacks) {
+    try { cb(); } catch (e) { console.error('[Memory] Emergency release callback error:', e); }
+  }
+}
+
 // Expose to window for debugging
 if (typeof window !== 'undefined') {
   (window as unknown as Record<string, unknown>).__memoryDebug = {
@@ -462,5 +493,6 @@ if (typeof window !== 'undefined') {
     getCaches: getCacheStats,
     pruneAll: pruneAllCaches,
     clearAll: clearAllCaches,
+    release: releaseMemory,
   };
 }

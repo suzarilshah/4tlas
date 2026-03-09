@@ -1189,12 +1189,16 @@ export class EventHandlerManager implements AppModule {
 
     const toggle = () => {
       isFullscreen = !isFullscreen;
+      mapSection.classList.toggle('fullscreen', isFullscreen);
       mapSection.classList.toggle('live-news-fullscreen', isFullscreen);
       document.body.classList.toggle('live-news-fullscreen-active', isFullscreen);
       btn.innerHTML = isFullscreen ? shrinkSvg : expandSvg;
       btn.title = isFullscreen ? 'Exit fullscreen' : 'Fullscreen';
       // Notify map so globe (and deck.gl) can resize after CSS transition completes
-      setTimeout(() => this.ctx.map?.setIsResizing(false), 320);
+      setTimeout(() => {
+        this.ctx.map?.setIsResizing(false);
+        this.ctx.map?.resize();
+      }, 320);
     };
 
     btn.addEventListener('click', toggle);

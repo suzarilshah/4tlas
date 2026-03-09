@@ -32,7 +32,6 @@
     "hardware": "Halfgeleiders en hardware",
     "cloud": "Cloud en infrastructuur",
     "dev": "Ontwikkelaarsgemeenschap",
-    "github": "GitHub-trending",
     "ipo": "IPO & SPAC",
     "thinktanks": "Denktanks",
     "africa": "Afrika",
@@ -2156,7 +2155,6 @@
   "header": {
     "world": "WERELD",
     "tech": "TECH",
-    "viewOnGitHub": "Bekijk op GitHub",
     "live": "LIVE",
     "search": "Zoekopdracht",
     "copyLink": "Kopieer link",

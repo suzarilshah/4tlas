@@ -602,6 +602,7 @@ function getSupplementalSignalBoost(data: CountryData): number {
   return aisBoost + fireBoost + cyberBoost + temporalBoost;
 }
 
+const MAX_H3_CACHE = 500;
 const h3CountryCache = new Map<string, string>();
 
 export function ingestGpsJammingForCII(hexes: GpsJamHex[]): void {
@@ -617,6 +618,10 @@ export function ingestGpsJammingForCII(hexes: GpsJamHex[]): void {
       if (hit) {
         code = hit.code;
         h3CountryCache.set(hex.h3, code);
+        if (h3CountryCache.size > MAX_H3_CACHE) {
+          const first = h3CountryCache.keys().next().value;
+          if (first !== undefined) h3CountryCache.delete(first);
+        }
       } else {
         continue;
       }

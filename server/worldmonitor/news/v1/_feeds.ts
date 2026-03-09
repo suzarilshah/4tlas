@@ -178,9 +178,6 @@ export const VARIANT_FEEDS: Record<string, Record<string, ServerFeed[]>> = {
       { name: 'AI Regulation', url: gn('AI regulation OR "artificial intelligence" law OR policy when:7d') },
       { name: 'Tech Antitrust', url: gn('tech antitrust OR FTC Google OR FTC Apple OR FTC Amazon when:7d') },
     ],
-    github: [
-      { name: 'GitHub Blog', url: 'https://github.blog/feed/' },
-    ],
     funding: [
       { name: 'VC News', url: gn('("Series A" OR "Series B" OR "Series C" OR "venture capital" OR "funding round") when:2d') },
     ],
@@ -216,7 +213,7 @@ export const VARIANT_FEEDS: Record<string, Record<string, ServerFeed[]>> = {
     ],
     outages: [
       { name: 'AWS Status', url: gn('AWS outage OR "Amazon Web Services" down when:1d') },
-      { name: 'Cloud Outages', url: gn('(Azure outage OR "Google Cloud" outage OR Cloudflare outage OR Slack down OR GitHub down) when:1d') },
+      { name: 'Cloud Outages', url: gn('(Azure outage OR "Google Cloud" outage OR Cloudflare outage OR Slack down) when:1d') },
     ],
   },
 

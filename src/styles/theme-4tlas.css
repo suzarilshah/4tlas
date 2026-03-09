@@ -1,29 +1,234 @@
+/* 
+  4tlas Theme Overrides 
+  "100 Billion USD" Edition - Hyper-Minimalist Bento Grid
+*/
 
-/* Generic Table Styling in Panels */
+/* -------------------------------------------------------------------------- */
+/*                                Panel Architecture                          */
+/* -------------------------------------------------------------------------- */
+
+.panel {
+  background: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: var(--glass-border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--glass-inner-glow), var(--shadow-md) !important;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+              box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+              border-color 0.3s ease !important;
+  overflow: hidden !important; /* Clip content to rounded corners */
+}
+
+.panel:hover {
+  transform: translateY(-2px) scale(1.002) !important;
+  box-shadow: var(--glass-inner-glow), 0 20px 40px -5px rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  z-index: 20 !important; /* Bring to front on hover */
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                Panel Header                                */
+/* -------------------------------------------------------------------------- */
+
+.panel-header {
+  background: rgba(255, 255, 255, 0.02) !important; /* Subtle separation */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding: var(--space-12) var(--space-16) !important;
+  height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.panel-title {
+  font-family: var(--font-family-primary) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  font-size: 13px !important;
+  letter-spacing: 0.02em !important;
+  color: var(--text-primary) !important;
+  text-transform: none !important; /* Remove uppercase for cleaner look */
+}
+
+/* Badges in Header */
+.panel-count {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-secondary) !important;
+  font-family: var(--font-family-mono) !important;
+  font-size: 11px !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.panel-new-badge {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #60A5FA !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+  border-radius: 99px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                Panel Content                               */
+/* -------------------------------------------------------------------------- */
+
+.panel-content {
+  padding: var(--space-16) !important;
+  font-family: var(--font-family-primary) !important; /* Default to clean sans */
+  color: var(--text-secondary) !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+/* Data Tables */
 .panel-content table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate !important;
+  border-spacing: 0 4px !important; /* Spacing between rows */
 }
 
 .panel-content th {
   text-align: left;
   color: var(--text-secondary) !important;
   font-weight: var(--font-weight-medium) !important;
-  font-size: var(--font-size-caption) !important;
+  font-size: 10px !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  padding: var(--space-8) !important;
-  border-bottom: 1px solid var(--border-subtle) !important;
-  background: transparent !important;
+  letter-spacing: 0.08em !important;
+  padding: var(--space-8) var(--space-12) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  opacity: 0.7 !important;
 }
 
 .panel-content td {
-  padding: var(--space-8) !important;
-  border-bottom: 1px solid var(--border-subtle) !important;
+  padding: var(--space-8) var(--space-12) !important;
+  background: rgba(255, 255, 255, 0.02) !important; /* Subtle row striping via blocks */
+  border: none !important;
   color: var(--text-primary) !important;
-  font-size: 13px !important; /* Slightly smaller for density */
+  font-size: 13px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.panel-content td:first-child {
+  border-top-left-radius: 6px !important;
+  border-bottom-left-radius: 6px !important;
+}
+
+.panel-content td:last-child {
+  border-top-right-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
 }
 
 .panel-content tr:hover td {
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--color-white) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                Micro-Interactions                          */
+/* -------------------------------------------------------------------------- */
+
+/* Buttons */
+button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+button:active {
+  transform: scale(0.96) !important;
+}
+
+/* Loading State (Radar) */
+.panel-loading-radar {
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  border-top-color: var(--color-neon-blue) !important;
+  width: 32px !important;
+  height: 32px !important;
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                Specific Components                         */
+/* -------------------------------------------------------------------------- */
+
+/* Search Bar (Floating Island) */
+.search-container {
+  background: rgba(10, 10, 10, 0.8) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 99px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+}
+
+.search-input {
+  color: white !important;
+  font-family: var(--font-family-primary) !important;
+}
+
+/* Tooltips */
+.panel-info-tooltip {
+  background: rgba(5, 5, 5, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  color: #E2E8F0 !important;
+}
+
+/* Map Controls */
+.mapboxgl-ctrl-group {
+  background: rgba(10, 10, 10, 0.8) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.mapboxgl-ctrl button {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.mapboxgl-ctrl button:last-child {
+  border-bottom: none !important;
+}
+
+.mapboxgl-ctrl button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                Component Overrides                         */
+/* -------------------------------------------------------------------------- */
+
+/* Component Overrides for Glass Support */
+.panel-tabs {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.panel-tab {
+  color: var(--text-secondary) !important;
+}
+
+.panel-tab.active {
+  color: var(--color-neon-blue) !important;
+  border-bottom-color: var(--color-neon-blue) !important;
+}
+
+/* Scrollbars inside panels */
+.panel-content::-webkit-scrollbar {
+  width: 4px !important;
+}
+.panel-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
 }

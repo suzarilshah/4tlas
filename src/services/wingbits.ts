@@ -53,7 +53,7 @@ const client = new MilitaryServiceClient('', { fetch: (...args) => globalThis.fe
 // Client-side cache for aircraft details
 const localCache = new Map<string, { data: WingbitsAircraftDetails; timestamp: number }>();
 const LOCAL_CACHE_TTL = 60 * 60 * 1000; // 1 hour client-side
-const MAX_LOCAL_CACHE_ENTRIES = 2000;
+const MAX_LOCAL_CACHE_ENTRIES = 500;
 const CACHE_SWEEP_INTERVAL_MS = 5 * 60 * 1000;
 let lastCacheSweep = 0;
 

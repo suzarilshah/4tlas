@@ -63,6 +63,12 @@ const MAX_GRID_CELLS = 4;
 const ECO_IDLE_PAUSE_MS = IDLE_PAUSE_MS;
 const IDLE_ACTIVITY_EVENTS = ['mousedown', 'keydown', 'scroll', 'touchstart', 'mousemove'] as const;
 
+const PLAY_ICON_SVG = '<svg width="48" height="48" viewBox="0 0 24 24" fill="white" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+
+function getYouTubeThumbnailUrl(videoId: string): string {
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+}
+
 type ViewMode = 'grid' | 'single';
 type RegionFilter = 'all' | WebcamRegion;
 
@@ -97,6 +103,7 @@ export class LiveWebcamsPanel extends Panel {
   private readonly forceSingleView = !isDesktopRuntime() && isMobileDevice();
   private readonly EMBED_READY_TIMEOUT_MS = 15000;
   private boundEmbedMessageHandler: (e: MessageEvent) => void;
+  private singleViewPlayerActive = false;
 
   constructor() {
     super({ id: 'live-webcams', title: t('panels.liveWebcams'), className: 'panel-wide' });
@@ -240,6 +247,7 @@ export class LiveWebcamsPanel extends Panel {
     if (this.forceSingleView && mode === 'grid') return;
     if (mode === this.viewMode) return;
     this.viewMode = mode;
+    if (mode === 'grid') this.singleViewPlayerActive = false;
     this.toolbar?.querySelectorAll('.webcam-view-btn').forEach(btn => {
       (btn as HTMLElement).classList.toggle('active', (btn as HTMLElement).dataset.mode === mode);
     });
@@ -446,56 +454,31 @@ export class LiveWebcamsPanel extends Panel {
     grid.className = 'webcam-grid';
 
     const feeds = this.gridFeeds;
-    const desktop = isDesktopRuntime();
 
-    feeds.forEach((feed, i) => {
+    feeds.forEach((feed) => {
       const cell = document.createElement('div');
-      cell.className = 'webcam-cell';
+      cell.className = 'webcam-cell webcam-cell-facade';
+      cell.style.backgroundImage = `url(${getYouTubeThumbnailUrl(feed.fallbackVideoId)})`;
+
+      const playOverlay = document.createElement('div');
+      playOverlay.className = 'webcam-play-overlay';
+      playOverlay.innerHTML = PLAY_ICON_SVG;
 
       const label = document.createElement('div');
       label.className = 'webcam-cell-label';
       label.innerHTML = `<span class="webcam-live-dot"></span><span class="webcam-city">${escapeHtml(feed.city.toUpperCase())}</span>`;
 
-      if (desktop) {
-        // On desktop, clicks pass through label (pointer-events:none in CSS)
-        // to YouTube iframe so users click play directly. Add expand button.
-        const expandBtn = document.createElement('button');
-        expandBtn.className = 'webcam-expand-btn';
-        expandBtn.title = t('webcams.expand') || 'Expand';
-        expandBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
-        expandBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          trackWebcamSelected(feed.id, feed.city, 'grid');
-          this.activeFeed = feed;
-          this.setViewMode('single');
-        });
-        label.appendChild(expandBtn);
-      } else {
-        cell.addEventListener('click', () => {
-          trackWebcamSelected(feed.id, feed.city, 'grid');
-          this.activeFeed = feed;
-          this.setViewMode('single');
-        });
-      }
-
+      cell.appendChild(playOverlay);
       cell.appendChild(label);
-      grid.appendChild(cell);
 
-      if (desktop && i > 0) {
-        // Stagger iframe creation on desktop — WKWebView throttles concurrent autoplay.
-        setTimeout(() => {
-          if (!this.isVisible || this.isIdle) return;
-          const iframe = this.createIframe(feed);
-          cell.insertBefore(iframe, label);
-          this.iframes.push(iframe);
-          this.trackIframe(iframe, feed, cell);
-        }, i * 800);
-      } else {
-        const iframe = this.createIframe(feed);
-        cell.insertBefore(iframe, label);
-        this.iframes.push(iframe);
-        this.trackIframe(iframe, feed, cell);
-      }
+      cell.addEventListener('click', () => {
+        trackWebcamSelected(feed.id, feed.city, 'grid');
+        this.activeFeed = feed;
+        this.singleViewPlayerActive = true;
+        this.setViewMode('single');
+      });
+
+      grid.appendChild(cell);
     });
 
     this.content.appendChild(grid);
@@ -508,10 +491,25 @@ export class LiveWebcamsPanel extends Panel {
     const wrapper = document.createElement('div');
     wrapper.className = 'webcam-single';
 
-    const iframe = this.createIframe(this.activeFeed);
-    wrapper.appendChild(iframe);
-    this.iframes.push(iframe);
-    this.trackIframe(iframe, this.activeFeed, wrapper);
+    if (this.singleViewPlayerActive) {
+      const iframe = this.createIframe(this.activeFeed);
+      wrapper.appendChild(iframe);
+      this.iframes.push(iframe);
+      this.trackIframe(iframe, this.activeFeed, wrapper);
+    } else {
+      wrapper.classList.add('webcam-cell-facade');
+      wrapper.style.backgroundImage = `url(${getYouTubeThumbnailUrl(this.activeFeed.fallbackVideoId)})`;
+
+      const playOverlay = document.createElement('div');
+      playOverlay.className = 'webcam-play-overlay webcam-play-overlay-single';
+      playOverlay.innerHTML = `${PLAY_ICON_SVG}<span class="webcam-play-label">${escapeHtml(t('components.webcams.clickToWatch') || 'Click to watch live')}</span>`;
+      playOverlay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.singleViewPlayerActive = true;
+        this.render();
+      });
+      wrapper.appendChild(playOverlay);
+    }
 
     const switcher = document.createElement('div');
     switcher.className = 'webcam-switcher';
@@ -520,7 +518,10 @@ export class LiveWebcamsPanel extends Panel {
       const backBtn = document.createElement('button');
       backBtn.className = 'webcam-feed-btn webcam-back-btn';
       backBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg> Grid';
-      backBtn.addEventListener('click', () => this.setViewMode('grid'));
+      backBtn.addEventListener('click', () => {
+        this.singleViewPlayerActive = false;
+        this.setViewMode('grid');
+      });
       switcher.appendChild(backBtn);
     }
 

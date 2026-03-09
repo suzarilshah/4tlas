@@ -32,7 +32,6 @@
     "hardware": "Halvledare och hårdvara",
     "cloud": "Moln och infrastruktur",
     "dev": "Utvecklargemenskap",
-    "github": "GitHub-trending",
     "ipo": "IPO & SPAC",
     "thinktanks": "Tankesmedjor",
     "africa": "Afrika",
@@ -2156,7 +2155,6 @@
   "header": {
     "world": "VÄRLD",
     "tech": "TECH",
-    "viewOnGitHub": "Visa på GitHub",
     "live": "LIVE",
     "search": "Söka",
     "copyLink": "Kopiera länk",

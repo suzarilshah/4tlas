@@ -656,6 +656,7 @@
   "components": {
     "webcams": {
       "expand": "Expand",
+      "clickToWatch": "Click to watch live",
       "paused": "Webcams paused",
       "pausedIdle": "Webcams paused — move mouse to resume",
       "regions": {
@@ -1710,6 +1711,7 @@
       }
     },
     "liveNews": {
+      "clickToLoad": "Click to load player",
       "retry": "Retry",
       "notLive": "{{name}} is not currently live",
       "cannotEmbed": "{{name}} can't be played here — it may be restricted in your region (error {{code}})",

@@ -35,6 +35,7 @@ const DEFAULT_SETTINGS: AlertSettings = {
   sensitivity: 'critical-and-high',
 };
 
+const MAX_DEDUPE_ENTRIES = 200;
 const dedupeMap = new Map<string, number>();
 let lastGlobalAlertMs = 0;
 let lastGlobalAlertLevel: 'critical' | 'high' | null = null;
@@ -149,6 +150,10 @@ function isGlobalCooldown(candidateLevel: 'critical' | 'high'): boolean {
 function dispatchAlert(alert: BreakingAlert): void {
   pruneDedupeMap();
   dedupeMap.set(alert.id, Date.now());
+  if (dedupeMap.size > MAX_DEDUPE_ENTRIES) {
+    const oldest = [...dedupeMap.entries()].sort((a, b) => a[1] - b[1]);
+    for (let i = 0; i < oldest.length - MAX_DEDUPE_ENTRIES; i++) dedupeMap.delete(oldest[i]![0]);
+  }
   lastGlobalAlertMs = Date.now();
   lastGlobalAlertLevel = alert.threatLevel;
   saveDedupeMap();

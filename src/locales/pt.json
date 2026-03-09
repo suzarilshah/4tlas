@@ -32,7 +32,6 @@
     "hardware": "Semicondutores e Hardware",
     "cloud": "Nuvem e infraestrutura",
     "dev": "Comunidade de desenvolvedores",
-    "github": "Tendências do GitHub",
     "ipo": "IPO E SPAC",
     "thinktanks": "Grupos de reflexão",
     "africa": "África",
@@ -2156,7 +2155,6 @@
   "header": {
     "world": "MUNDO",
     "tech": "TECH",
-    "viewOnGitHub": "Ver no GitHub",
     "live": "AO VIVO",
     "search": "Procurar",
     "copyLink": "Copiar link",

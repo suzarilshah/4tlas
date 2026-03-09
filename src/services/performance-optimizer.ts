@@ -8,7 +8,7 @@
  * - Memory pressure handling
  */
 
-import { isMemoryPressure, pruneAllCaches, onMemoryPressure, getMemoryStats } from '@/utils/memory-optimization';
+import { isMemoryPressure, pruneAllCaches, onMemoryPressure, getMemoryStats, startMemoryMonitor } from '@/utils/memory-optimization';
 
 // ─── Lazy Loading Utilities ──────────────────────────────────────────────────
 
@@ -404,11 +404,11 @@ export function getPerformanceMetrics(): PerformanceMetrics {
 export function initPerformanceOptimizer(): void {
   initMemoryPressureHandling();
   startFpsMonitoring();
+  startMemoryMonitor(15000, 50);
 
-  // Log performance status periodically in development
   if (import.meta.env.DEV) {
     setInterval(() => {
-      if (isMemoryPressure(60)) {
+      if (isMemoryPressure(50)) {
         const metrics = getPerformanceMetrics();
         console.warn('[Performance] Warning:', metrics);
       }

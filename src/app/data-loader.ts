@@ -158,6 +158,13 @@ function protoItemToNewsItem(p: ProtoNewsItem): NewsItem {
 
 const CYBER_LAYER_ENABLED = import.meta.env.VITE_ENABLE_CYBER_LAYER === 'true';
 
+const MAX_ALL_NEWS = 1500;
+const MAX_NEWS_PER_CATEGORY = 200;
+const MAX_HAPPY_ITEMS = 500;
+const MAX_CLUSTERS = 200;
+const MAX_PREDICTIONS = 100;
+const MAX_MAP_FLASH_CACHE = 200;
+
 export interface DataLoaderCallbacks {
   renderCriticalBanner: (postures: TheaterPostureSummary[]) => void;
   refreshOpenCountryBrief: () => void;
@@ -540,6 +547,11 @@ export class DataLoaderManager implements AppModule {
         this.mapFlashCache.delete(key);
       }
     }
+    if (this.mapFlashCache.size > MAX_MAP_FLASH_CACHE) {
+      const entries = [...this.mapFlashCache.entries()].sort((a, b) => a[1] - b[1]);
+      const toDelete = entries.slice(0, this.mapFlashCache.size - MAX_MAP_FLASH_CACHE);
+      for (const [key] of toDelete) this.mapFlashCache.delete(key);
+    }
 
     for (const item of items) {
       const cacheKey = `${item.source}|${item.link || item.title}`;
@@ -590,6 +602,9 @@ export class DataLoaderManager implements AppModule {
   }
 
   renderNewsForCategory(category: string, items: NewsItem[]): void {
+    if (items.length > MAX_NEWS_PER_CATEGORY) {
+      items = items.slice(0, MAX_NEWS_PER_CATEGORY);
+    }
     this.ctx.newsByCategory[category] = items;
     const panel = this.ctx.newsPanels[category];
     if (!panel) return;
@@ -819,6 +834,10 @@ export class DataLoaderManager implements AppModule {
           }
           // Accumulate curated items for the positive news pipeline
           this.ctx.happyAllItems = this.ctx.happyAllItems.concat(items);
+          if (this.ctx.happyAllItems.length > MAX_HAPPY_ITEMS) {
+            this.ctx.happyAllItems.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
+            this.ctx.happyAllItems.length = MAX_HAPPY_ITEMS;
+          }
         }
         collectedNews.push(...items);
       } else {
@@ -900,6 +919,10 @@ export class DataLoaderManager implements AppModule {
       }
     }
 
+    if (collectedNews.length > MAX_ALL_NEWS) {
+      collectedNews.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
+      collectedNews.length = MAX_ALL_NEWS;
+    }
     this.ctx.allNews = collectedNews;
     this.ctx.initialLoadComplete = true;
     mountCommunityWidget();
@@ -909,9 +932,13 @@ export class DataLoaderManager implements AppModule {
     this.updateMonitorResults();
 
     try {
-      this.ctx.latestClusters = mlWorker.isAvailable
+      let clusters = mlWorker.isAvailable
         ? await clusterNewsHybrid(this.ctx.allNews)
         : await analysisWorker.clusterNews(this.ctx.allNews);
+      if (clusters.length > MAX_CLUSTERS) {
+        clusters = clusters.slice(0, MAX_CLUSTERS);
+      }
+      this.ctx.latestClusters = clusters;
 
       const insightsPanel = this.ctx.panels['insights'] as InsightsPanel | undefined;
       insightsPanel?.updateInsights(this.ctx.latestClusters);
@@ -1089,7 +1116,8 @@ export class DataLoaderManager implements AppModule {
 
   async loadPredictions(): Promise<void> {
     try {
-      const predictions = await fetchPredictions();
+      let predictions = await fetchPredictions();
+      if (predictions.length > MAX_PREDICTIONS) predictions = predictions.slice(0, MAX_PREDICTIONS);
       this.ctx.latestPredictions = predictions;
       (this.ctx.panels['polymarket'] as PredictionPanel).renderPredictions(predictions);
 

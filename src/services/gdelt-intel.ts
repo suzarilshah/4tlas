@@ -131,6 +131,7 @@ const positiveGdeltBreaker = createCircuitBreaker<SearchGdeltDocumentsResponse>(
 const emptyGdeltFallback: SearchGdeltDocumentsResponse = { articles: [], query: '', error: '' };
 
 const CACHE_TTL = 5 * 60 * 1000;
+const MAX_ARTICLE_CACHE = 30;
 const articleCache = new Map<string, { articles: GdeltArticle[]; timestamp: number }>();
 
 /** Map proto GdeltArticle (all required strings) to service GdeltArticle (optional fields) */
@@ -176,6 +177,10 @@ export async function fetchGdeltArticles(
   const articles: GdeltArticle[] = (resp.articles || []).map(toGdeltArticle);
 
   articleCache.set(cacheKey, { articles, timestamp: Date.now() });
+  if (articleCache.size > MAX_ARTICLE_CACHE) {
+    const oldest = [...articleCache.entries()].sort((a, b) => a[1].timestamp - b[1].timestamp);
+    for (let i = 0; i < oldest.length - MAX_ARTICLE_CACHE; i++) articleCache.delete(oldest[i]![0]);
+  }
   return articles;
 }
 
@@ -268,6 +273,10 @@ export async function fetchPositiveGdeltArticles(
 
   const articles: GdeltArticle[] = (resp.articles || []).map(toGdeltArticle);
   articleCache.set(cacheKey, { articles, timestamp: Date.now() });
+  if (articleCache.size > MAX_ARTICLE_CACHE) {
+    const oldest = [...articleCache.entries()].sort((a, b) => a[1].timestamp - b[1].timestamp);
+    for (let i = 0; i < oldest.length - MAX_ARTICLE_CACHE; i++) articleCache.delete(oldest[i]![0]);
+  }
   return articles;
 }
 

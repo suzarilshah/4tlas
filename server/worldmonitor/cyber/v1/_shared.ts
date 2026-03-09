@@ -4,7 +4,6 @@
  * Five upstream threat intelligence sources:
  *   - Feodo Tracker (abuse.ch C2 botnet IPs)
  *   - URLhaus (abuse.ch malicious URLs)
- *   - C2IntelFeeds (GitHub CSV of C2 IPs)
  *   - AlienVault OTX (threat indicators)
  *   - AbuseIPDB (IP blacklist)
  *
@@ -34,7 +33,6 @@ export const MAX_DAYS = 90;
 
 const FEODO_URL = 'https://feodotracker.abuse.ch/downloads/ipblocklist.json';
 const URLHAUS_RECENT_URL = (limit: number) => `https://urlhaus-api.abuse.ch/v1/urls/recent/limit/${limit}/`;
-const C2INTEL_URL = 'https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s-30day.csv';
 const OTX_INDICATORS_URL = 'https://otx.alienvault.com/api/v1/indicators/export?type=IPv4&modified_since=';
 const ABUSEIPDB_BLACKLIST_URL = 'https://api.abuseipdb.com/api/v2/blacklist';
 
@@ -595,23 +593,7 @@ function parseC2IntelCsvLine(line: string): RawThreat | null {
 }
 
 export async function fetchC2IntelSource(limit: number): Promise<SourceResult> {
-  try {
-    const response = await fetch(C2INTEL_URL, {
-      headers: { Accept: 'text/plain', 'User-Agent': CHROME_UA },
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-    });
-    if (!response.ok) return { ok: false, threats: [] };
-
-    const text = await response.text();
-    const parsed = text.split('\n')
-      .map((line) => parseC2IntelCsvLine(line))
-      .filter((t): t is RawThreat => t !== null)
-      .slice(0, limit);
-
-    return { ok: true, threats: parsed };
-  } catch {
-    return { ok: false, threats: [] };
-  }
+  return { ok: true, threats: [] };
 }
 
 // ========================================================================

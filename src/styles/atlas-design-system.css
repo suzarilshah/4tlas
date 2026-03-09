@@ -1,0 +1,1290 @@
+/**
+ * 4tlas Design System v2.0
+ *
+ * A $100B-worthy design system inspired by:
+ * - Linear (motion with meaning, cognitive minimalism)
+ * - Vercel (clean typography, semantic tokens)
+ * - Notion (approachable, digestible information)
+ *
+ * Principles:
+ * 1. Whitespace = confidence (cluttered UI feels cheap)
+ * 2. 8pt grid system for consistent rhythm
+ * 3. Dark grey (#121212) not pure black
+ * 4. Semantic tokens for scalable theming
+ * 5. Content-visibility for off-screen performance
+ * 6. Motion with meaning, not decoration
+ */
+
+/* ============================================================
+   DESIGN TOKENS - Single Source of Truth
+   ============================================================ */
+
+:root {
+  /* ─── Color Palette ───────────────────────────────────────── */
+
+  /* Base Colors - Using dark grey, NOT pure black (per research) */
+  --atlas-black: #0a0a0b;
+  --atlas-darker: #101012;
+  --atlas-dark: #141416;
+  --atlas-surface: #1a1a1e;
+  --atlas-elevated: #202024;
+  --atlas-muted: #27272b;
+
+  /* Text Colors - Proper contrast ratios */
+  --atlas-text-primary: #fafafa;    /* 15.8:1 on dark */
+  --atlas-text-secondary: #a1a1aa;  /* 7.2:1 on dark */
+  --atlas-text-tertiary: #71717a;   /* 4.6:1 on dark */
+  --atlas-text-muted: #52525b;      /* Decorative only */
+
+  /* Accent Colors - Desaturated for dark mode */
+  --atlas-blue: #3b82f6;
+  --atlas-blue-soft: rgba(59, 130, 246, 0.15);
+  --atlas-green: #22c55e;
+  --atlas-green-soft: rgba(34, 197, 94, 0.15);
+  --atlas-amber: #f59e0b;
+  --atlas-amber-soft: rgba(245, 158, 11, 0.15);
+  --atlas-red: #ef4444;
+  --atlas-red-soft: rgba(239, 68, 68, 0.15);
+
+  /* Border Colors */
+  --atlas-border: rgba(255, 255, 255, 0.08);
+  --atlas-border-subtle: rgba(255, 255, 255, 0.04);
+  --atlas-border-strong: rgba(255, 255, 255, 0.12);
+
+  /* ─── Typography ──────────────────────────────────────────── */
+
+  /* Font Families - Clean, professional, NOT monospace for body */
+  --atlas-font-sans: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --atlas-font-mono: "JetBrains Mono", "SF Mono", "Fira Code", "Cascadia Code", monospace;
+
+  /* Font Sizes - Based on 4pt scale */
+  --atlas-text-xs: 0.6875rem;   /* 11px */
+  --atlas-text-sm: 0.75rem;     /* 12px */
+  --atlas-text-base: 0.875rem;  /* 14px */
+  --atlas-text-md: 1rem;        /* 16px */
+  --atlas-text-lg: 1.125rem;    /* 18px */
+  --atlas-text-xl: 1.25rem;     /* 20px */
+  --atlas-text-2xl: 1.5rem;     /* 24px */
+  --atlas-text-3xl: 1.875rem;   /* 30px */
+
+  /* Line Heights - Multiples of 8 for vertical rhythm */
+  --atlas-leading-none: 1;
+  --atlas-leading-tight: 1.25;
+  --atlas-leading-snug: 1.375;
+  --atlas-leading-normal: 1.5;
+  --atlas-leading-relaxed: 1.625;
+
+  /* Font Weights */
+  --atlas-font-normal: 400;
+  --atlas-font-medium: 500;
+  --atlas-font-semibold: 600;
+  --atlas-font-bold: 700;
+
+  /* Letter Spacing */
+  --atlas-tracking-tighter: -0.05em;
+  --atlas-tracking-tight: -0.025em;
+  --atlas-tracking-normal: 0;
+  --atlas-tracking-wide: 0.025em;
+  --atlas-tracking-wider: 0.05em;
+
+  /* ─── Spacing (8pt Grid) ──────────────────────────────────── */
+
+  --atlas-space-0: 0;
+  --atlas-space-1: 0.25rem;   /* 4px */
+  --atlas-space-2: 0.5rem;    /* 8px */
+  --atlas-space-3: 0.75rem;   /* 12px */
+  --atlas-space-4: 1rem;      /* 16px */
+  --atlas-space-5: 1.25rem;   /* 20px */
+  --atlas-space-6: 1.5rem;    /* 24px */
+  --atlas-space-8: 2rem;      /* 32px */
+  --atlas-space-10: 2.5rem;   /* 40px */
+  --atlas-space-12: 3rem;     /* 48px */
+  --atlas-space-16: 4rem;     /* 64px */
+
+  /* ─── Border Radius ───────────────────────────────────────── */
+
+  --atlas-radius-sm: 4px;
+  --atlas-radius-md: 8px;
+  --atlas-radius-lg: 12px;
+  --atlas-radius-xl: 16px;
+  --atlas-radius-2xl: 20px;
+  --atlas-radius-full: 9999px;
+
+  /* ─── Shadows ─────────────────────────────────────────────── */
+
+  --atlas-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --atlas-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --atlas-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --atlas-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --atlas-shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+
+  /* ─── Glass Effect ────────────────────────────────────────── */
+
+  --atlas-glass-bg: rgba(20, 20, 22, 0.8);
+  --atlas-glass-blur: blur(20px);
+  --atlas-glass-border: 1px solid rgba(255, 255, 255, 0.06);
+  --atlas-glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+
+  /* ─── Transitions ─────────────────────────────────────────── */
+
+  --atlas-duration-fast: 100ms;
+  --atlas-duration-normal: 200ms;
+  --atlas-duration-slow: 300ms;
+  --atlas-duration-slower: 500ms;
+
+  --atlas-ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --atlas-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --atlas-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --atlas-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ─── Z-Index Scale ───────────────────────────────────────── */
+
+  --atlas-z-base: 0;
+  --atlas-z-dropdown: 10;
+  --atlas-z-sticky: 20;
+  --atlas-z-fixed: 30;
+  --atlas-z-overlay: 40;
+  --atlas-z-modal: 50;
+  --atlas-z-popover: 60;
+  --atlas-z-tooltip: 70;
+}
+
+/* ============================================================
+   SEMANTIC TOKENS - Map to existing variables for compatibility
+   ============================================================ */
+
+:root {
+  /* Map new tokens to existing CSS variable names */
+  --bg: var(--atlas-black);
+  --bg-secondary: var(--atlas-darker);
+  --surface: var(--atlas-dark);
+  --surface-hover: var(--atlas-surface);
+  --surface-active: var(--atlas-elevated);
+
+  --border: var(--atlas-border-strong);
+  --border-subtle: var(--atlas-border-subtle);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --text: var(--atlas-text-primary);
+  --text-secondary: var(--atlas-text-secondary);
+  --text-dim: var(--atlas-text-secondary);
+  --text-muted: var(--atlas-text-tertiary);
+  --text-faint: var(--atlas-text-muted);
+  --accent: var(--atlas-blue);
+
+  --panel-bg: var(--atlas-dark);
+  --panel-border: var(--atlas-border);
+
+  /* Override the monospace font for body */
+  --font-body: var(--atlas-font-sans);
+  --font-mono: var(--atlas-font-mono);
+
+  /* Semantic status colors */
+  --semantic-success: var(--atlas-green);
+  --semantic-warning: var(--atlas-amber);
+  --semantic-error: var(--atlas-red);
+  --semantic-info: var(--atlas-blue);
+  --semantic-positive: var(--atlas-green);
+}
+
+/* ============================================================
+   BASE STYLES - Clean foundation
+   ============================================================ */
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--atlas-font-sans);
+  font-size: var(--atlas-text-base);
+  line-height: var(--atlas-leading-normal);
+  color: var(--atlas-text-primary);
+  background: var(--atlas-black);
+}
+
+/* Tabular numbers for data display */
+.tabular-nums,
+[data-numeric],
+.panel-count,
+.market-price,
+.crypto-price,
+.stat-value,
+.metric-value {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ============================================================
+   PANEL REDESIGN - Modern glassmorphism cards
+   ============================================================ */
+
+.panel {
+  background: var(--atlas-glass-bg);
+  backdrop-filter: var(--atlas-glass-blur);
+  -webkit-backdrop-filter: var(--atlas-glass-blur);
+  border: var(--atlas-glass-border);
+  border-radius: var(--atlas-radius-xl);
+  box-shadow: var(--atlas-glass-highlight), var(--atlas-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform var(--atlas-duration-normal) var(--atlas-ease-out),
+              box-shadow var(--atlas-duration-normal) var(--atlas-ease-out);
+
+  /* Performance optimization for off-screen panels */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}
+
+.panel:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--atlas-glass-highlight), var(--atlas-shadow-xl), var(--atlas-shadow-glow);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--atlas-space-3) var(--atlas-space-4);
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--atlas-border-subtle);
+  flex-shrink: 0;
+  gap: var(--atlas-space-2);
+}
+
+.panel-title {
+  font-family: var(--atlas-font-sans);
+  font-size: var(--atlas-text-sm);
+  font-weight: var(--atlas-font-semibold);
+  color: var(--atlas-text-primary);
+  letter-spacing: var(--atlas-tracking-tight);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--atlas-space-2);
+  background: var(--atlas-blue-soft);
+  color: var(--atlas-blue);
+  font-size: var(--atlas-text-xs);
+  font-weight: var(--atlas-font-semibold);
+  border-radius: var(--atlas-radius-full);
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--atlas-space-3);
+  scrollbar-width: thin;
+  scrollbar-color: var(--atlas-muted) transparent;
+}
+
+.panel-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+  background: var(--atlas-muted);
+  border-radius: var(--atlas-radius-full);
+}
+
+.panel-content::-webkit-scrollbar-thumb:hover {
+  background: var(--atlas-text-muted);
+}
+
+/* ============================================================
+   HEADER REDESIGN - Cleaner, more spacious
+   ============================================================ */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--atlas-space-2) var(--atlas-space-4);
+  background: var(--atlas-darker);
+  border-bottom: 1px solid var(--atlas-border-subtle);
+  height: 48px;
+  flex-shrink: 0;
+  gap: var(--atlas-space-4);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--atlas-space-3);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--atlas-space-2);
+}
+
+.logo {
+  font-family: var(--atlas-font-sans);
+  font-size: var(--atlas-text-md);
+  font-weight: var(--atlas-font-bold);
+  color: var(--atlas-text-primary);
+  letter-spacing: var(--atlas-tracking-tight);
+}
+
+.version {
+  font-size: var(--atlas-text-xs);
+  color: var(--atlas-text-tertiary);
+  margin-left: var(--atlas-space-1);
+}
+
+/* ============================================================
+   BUTTONS - Clean, minimal
+   ============================================================ */
+
+button,
+.btn {
+  font-family: var(--atlas-font-sans);
+  font-size: var(--atlas-text-sm);
+  font-weight: var(--atlas-font-medium);
+  cursor: pointer;
+  transition: all var(--atlas-duration-fast) var(--atlas-ease-default);
+}
+
+.btn-primary {
+  background: var(--atlas-blue);
+  color: white;
+  border: none;
+  border-radius: var(--atlas-radius-md);
+  padding: var(--atlas-space-2) var(--atlas-space-4);
+}
+
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--atlas-blue), white 10%);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--atlas-text-secondary);
+  border: 1px solid transparent;
+  border-radius: var(--atlas-radius-md);
+  padding: var(--atlas-space-2) var(--atlas-space-3);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--atlas-text-primary);
+  border-color: var(--atlas-border);
+}
+
+/* ============================================================
+   GRID LAYOUT - More spacious
+   ============================================================ */
+
+.panels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-rows: minmax(180px, auto);
+  gap: var(--atlas-space-3);
+  padding: var(--atlas-space-3);
+  overflow-x: hidden;
+}
+
+.map-bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--atlas-space-3);
+  padding: var(--atlas-space-3);
+}
+
+/* ============================================================
+   NEWS ITEMS - Clean, scannable
+   ============================================================ */
+
+.news-item {
+  display: flex;
+  gap: var(--atlas-space-3);
+  padding: var(--atlas-space-3);
+  border-radius: var(--atlas-radius-lg);
+  transition: background var(--atlas-duration-fast) var(--atlas-ease-default);
+}
+
+.news-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.news-item-title {
+  font-size: var(--atlas-text-sm);
+  font-weight: var(--atlas-font-medium);
+  color: var(--atlas-text-primary);
+  line-height: var(--atlas-leading-snug);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-item-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--atlas-space-2);
+  margin-top: var(--atlas-space-1);
+  font-size: var(--atlas-text-xs);
+  color: var(--atlas-text-tertiary);
+}
+
+/* ============================================================
+   LOADING STATES - Skeleton animation
+   ============================================================ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--atlas-surface) 25%,
+    var(--atlas-elevated) 50%,
+    var(--atlas-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--atlas-radius-md);
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================
+   MICRO-INTERACTIONS - Subtle, meaningful
+   ============================================================ */
+
+/* Focus states */
+:focus-visible {
+  outline: 2px solid var(--atlas-blue);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: var(--atlas-blue-soft);
+  color: var(--atlas-text-primary);
+}
+
+/* Links */
+a {
+  color: var(--atlas-blue);
+  text-decoration: none;
+  transition: color var(--atlas-duration-fast) var(--atlas-ease-default);
+}
+
+a:hover {
+  color: color-mix(in srgb, var(--atlas-blue), white 20%);
+}
+
+/* ============================================================
+   STATUS INDICATORS - Clear visual hierarchy
+   ============================================================ */
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--atlas-radius-full);
+  background: var(--atlas-green);
+  box-shadow: 0 0 8px var(--atlas-green);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--atlas-space-2);
+  font-size: var(--atlas-text-xs);
+  font-weight: var(--atlas-font-medium);
+  color: var(--atlas-green);
+  text-transform: uppercase;
+  letter-spacing: var(--atlas-tracking-wider);
+}
+
+/* ============================================================
+   SCROLLBARS - Minimal, elegant
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--atlas-muted);
+  border-radius: var(--atlas-radius-full);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--atlas-text-muted);
+  background-clip: content-box;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--atlas-muted) transparent;
+}
+
+/* ============================================================
+   RESPONSIVE - Mobile-first refinements
+   ============================================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --atlas-text-base: 0.8125rem; /* 13px on mobile */
+  }
+
+  .panels-grid {
+    grid-template-columns: 1fr;
+    gap: var(--atlas-space-2);
+    padding: var(--atlas-space-2);
+  }
+
+  .panel {
+    border-radius: var(--atlas-radius-lg);
+  }
+
+  .header {
+    padding: var(--atlas-space-2) var(--atlas-space-3);
+    height: 44px;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION - Respect user preferences
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .panel {
+    content-visibility: visible;
+  }
+}
+
+/* ============================================================
+   HIGH CONTRAST MODE - Accessibility
+   ============================================================ */
+
+@media (prefers-contrast: high) {
+  :root {
+    --atlas-border: rgba(255, 255, 255, 0.3);
+    --atlas-border-subtle: rgba(255, 255, 255, 0.2);
+    --atlas-text-secondary: #d4d4d8;
+    --atlas-text-tertiary: #a1a1aa;
+  }
+}
+
+/* ============================================================
+   HEADER REDESIGN - Clean, Modern, Minimal
+   Inspired by Linear, Notion, Vercel dashboard design
+   ============================================================ */
+
+.header-redesign {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--atlas-space-4);
+  height: 52px;
+  background: var(--atlas-glass-bg);
+  backdrop-filter: var(--atlas-glass-blur);
+  -webkit-backdrop-filter: var(--atlas-glass-blur);
+  border-bottom: 1px solid var(--atlas-border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: var(--atlas-z-sticky);
+  gap: var(--atlas-space-4);
+}
+
+/* ─── Left Section: Brand + Status ─────────────────────────── */
+
+.header-redesign .header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--atlas-space-3);
+  flex-shrink: 0;
+}
+
+.header-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--atlas-text-secondary);
+  border-radius: var(--atlas-radius-md);
+  cursor: pointer;
+  transition: all var(--atlas-duration-fast) var(--atlas-ease-default);
+}
+
+.header-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--atlas-text-primary);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--atlas-space-3);
+}
+
+.header-logo {
+  font-family: var(--atlas-font-sans);
+  font-size: var(--atlas-text-md);
+  font-weight: var(--atlas-font-bold);
+  color: var(--atlas-text-primary);
+  letter-spacing: var(--atlas-tracking-tight);
+  background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: var(--atlas-radius-full);
+}
+
+.header-live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--atlas-green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--atlas-green);
+  animation: pulse-live 2s ease-in-out infinite;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.header-live-text {
+  font-size: var(--atlas-text-xs);
+  font-weight: var(--atlas-font-semibold);
+  color: var(--atlas-green);
+  text-transform: uppercase;
+  letter-spacing: var(--atlas-tracking-wider);
+}
+
+/* ─── Center Section: Search + Region ──────────────────────── */
+
+.header-redesign .header-center {
+  display: flex;
+  align-items: center;
+  gap: var(--atlas-space-2);
+  flex: 1;
+  justify-content: center;
+  max-width: 480px;
+}
+
+.header-search-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--atlas-space-2);
+  padding: 8px 14px;
+  background: var(--atlas-surface);
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius-lg);
+  color: var(--atlas-text-tertiary);
+  font-size: var(--atlas-text-sm);
+  cursor: pointer;
+  transition: all var(--atlas-duration-fast) var(--atlas-ease-default);
+  min-width: 200px;
+  justify-content: flex-start;
+}
+
+.header-search-btn:hover {
+  background: var(--atlas-elevated);
+  border-color: var(--atlas-border-strong);
+  color: var(--atlas-text-secondary);
+}
+
+.header-search-btn svg {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.header-search-text {
+  flex: 1;
+  text-align: left;
+}
+
+.header-search-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  background: var(--atlas-muted);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: var(--atlas-font-medium);
+  color: var(--atlas-text-tertiary);
+  font-family: var(--atlas-font-sans);
+}
+
+.header-region-select {
+  padding: 8px 12px;
+  background: var(--atlas-surface);
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius-md);
+  color: var(--atlas-text-secondary);
+  font-size: var(--atlas-text-sm);
+  font-family: var(--atlas-font-sans);
+  cursor: pointer;
+  transition: all var(--atlas-duration-fast) var(--atlas-ease-default);
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 28px;
+}
+
+.header-region-select:hover {
+  background-color: var(--atlas-elevated);
+  border-color: var(--atlas-border-strong);
+}
+
+.header-region-select:focus {
+  outline: none;
+  border-color: var(--atlas-blue);
+  box-shadow: 0 0 0 2px var(--atlas-blue-soft);
+}
+
+/* ─── Right Section: Actions ───────────────────────────────── */
+
+.header-redesign .header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--atlas-space-3);
+  flex-shrink: 0;
+}
+
+.header-variant-pills {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--atlas-surface);
+  border: 1px solid var(--atlas-border-subtle);
+  border-radius: var(--atlas-radius-lg);
+}
+
+.header-variant-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--atlas-radius-md);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all var(--atlas-duration-fast) var(--atlas-ease-default);
+  filter: grayscale(70%);
+  opacity: 0.7;
+}
+
+.header-variant-pill:hover {
+  background: var(--atlas-elevated);
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+.header-variant-pill.active {
+  background: var(--atlas-blue-soft);
+  filter: grayscale(0%);
+  opacity: 1;
+  pointer-events: none;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--atlas-text-secondary);
+  border-radius: var(--atlas-radius-md);
+  cursor: pointer;
+  transition: all var(--atlas-duration-fast) var(--atlas-ease-default);
+}
+
+.header-action-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--atlas-text-primary);
+}
+
+.header-action-btn:active {
+  transform: scale(0.95);
+}
+
+/* ─── Mobile Responsive ────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .header-redesign {
+    height: 48px;
+    padding: 0 var(--atlas-space-3);
+    gap: var(--atlas-space-2);
+  }
+
+  .header-menu-btn {
+    display: flex;
+  }
+
+  .header-live-badge {
+    display: none;
+  }
+
+  .header-redesign .header-center {
+    display: none;
+  }
+
+  .header-variant-pills {
+    display: none;
+  }
+
+  .header-action-btn:not(#headerThemeToggle) {
+    display: none;
+  }
+
+  .mobile-search-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--atlas-text-secondary);
+    border-radius: var(--atlas-radius-md);
+    cursor: pointer;
+  }
+
+  .mobile-settings-btn {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-search-btn,
+  .mobile-settings-btn {
+    display: none !important;
+  }
+}
+
+/* Hide old header elements when redesign is active */
+.header-redesign .logo,
+.header-redesign .logo-mobile,
+.header-redesign .version,
+.header-redesign .beta-badge,
+.header-redesign .status-indicator,
+.header-redesign .region-selector,
+.header-redesign .variant-switcher,
+.header-redesign .search-btn,
+.header-redesign .copy-link-btn,
+.header-redesign .download-btn,
+.header-redesign .theme-toggle-btn,
+.header-redesign .fullscreen-btn {
+  display: none !important;
+}
+
+/* ============================================================
+   MEMORY & PERFORMANCE OPTIMIZATIONS
+   Based on 2025 research for reduced memory consumption
+   ============================================================ */
+
+/* Aggressive containment for all panel content */
+.panel-content {
+  contain: content;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 250px;
+}
+
+/* Optimize long scrollable lists - skip rendering off-screen items */
+.news-list,
+.intel-feed,
+.market-list,
+.alerts-list {
+  contain: strict;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 400px;
+}
+
+/* Individual news items get containment */
+.news-item,
+.intel-entry,
+.market-row {
+  contain: layout style;
+}
+
+/* Reduce layer promotion - only promote when actually animating */
+.panel:not(:hover):not(.dragging) {
+  will-change: auto;
+  transform: none;
+}
+
+/* Prevent unnecessary backdrop-filter on hidden/collapsed panels */
+.panel.collapsed,
+.panel.minimized {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Optimize images and media */
+img,
+video,
+canvas {
+  content-visibility: auto;
+}
+
+/* Reduce animation work when tab is hidden */
+.tab-hidden .panel,
+.document-hidden .panel {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+
+/* ============================================================
+   WORLD INTEL PANEL - Featured 4-in-1 Intel Dashboard
+   Prominently highlighted to show consolidated intel features
+   ============================================================ */
+
+/* Make World Intel panel span 2 columns on larger screens */
+@media (min-width: 1200px) {
+  .panel[data-panel="world-intel"] {
+    grid-column: span 2;
+  }
+}
+
+/* Prominent visual treatment */
+.panel[data-panel="world-intel"] {
+  border: 2px solid rgba(59, 130, 246, 0.5);
+  background: linear-gradient(
+    145deg,
+    rgba(15, 23, 42, 0.98) 0%,
+    rgba(30, 41, 59, 0.95) 100%
+  );
+  box-shadow:
+    0 0 30px rgba(59, 130, 246, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Animated border glow */
+.panel[data-panel="world-intel"]::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.6) 0%,
+    rgba(139, 92, 246, 0.4) 50%,
+    rgba(59, 130, 246, 0.6) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: intel-border-glow 4s ease-in-out infinite;
+}
+
+@keyframes intel-border-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Featured label */
+.panel[data-panel="world-intel"] .panel-header {
+  position: relative;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    transparent 50%
+  );
+}
+
+.panel[data-panel="world-intel"] .panel-title::before {
+  content: '✨ ';
+}
+
+/* Enhanced tab bar for World Intel */
+.panel[data-panel="world-intel"] .wi-tabs {
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 6px 8px 0;
+}
+
+.panel[data-panel="world-intel"] .wi-tab {
+  padding: 8px 14px;
+  border-radius: 8px 8px 0 0;
+  font-weight: 500;
+}
+
+.panel[data-panel="world-intel"] .wi-tab.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border-bottom: 2px solid #3b82f6;
+}
+
+.panel[data-panel="world-intel"] .wi-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================================
+   COLORFUL DASHBOARD - Vibrant accents without memory cost
+   Pure CSS colors have zero memory impact
+   ============================================================ */
+
+/* Panel category color coding - left border accent */
+.panel[data-panel="live-news"],
+.panel[data-panel="politics"],
+.panel[data-panel="intel"] {
+  border-left: 3px solid #f43f5e; /* Rose - Breaking/Intel */
+}
+
+.panel[data-panel="markets"],
+.panel[data-panel="commodities"],
+.panel[data-panel="economic"],
+.panel[data-panel="finance"] {
+  border-left: 3px solid #22c55e; /* Green - Finance */
+}
+
+.panel[data-panel="crypto"],
+.panel[data-panel="stablecoins"],
+.panel[data-panel="etf-flows"] {
+  border-left: 3px solid #f59e0b; /* Amber - Crypto */
+}
+
+.panel[data-panel="tech"],
+.panel[data-panel="ai"],
+.panel[data-panel="tech-readiness"] {
+  border-left: 3px solid #8b5cf6; /* Violet - Tech */
+}
+
+.panel[data-panel="strategic-risk"],
+.panel[data-panel="strategic-posture"],
+.panel[data-panel="cii"] {
+  border-left: 3px solid #ef4444; /* Red - Strategic/Risk */
+}
+
+.panel[data-panel="satellite-fires"],
+.panel[data-panel="climate"],
+.panel[data-panel="ucdp-events"] {
+  border-left: 3px solid #f97316; /* Orange - Alerts/Events */
+}
+
+.panel[data-panel="insights"],
+.panel[data-panel="gdelt-intel"] {
+  border-left: 3px solid #06b6d4; /* Cyan - AI/Insights */
+}
+
+.panel[data-panel="cascade"],
+.panel[data-panel="supply-chain"],
+.panel[data-panel="trade-policy"] {
+  border-left: 3px solid #14b8a6; /* Teal - Infrastructure */
+}
+
+/* Colorful panel headers with subtle gradient */
+.panel-header {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    transparent 100%
+  );
+}
+
+/* News category color badges */
+.panel[data-panel="us"] .panel-title::before { content: '🇺🇸 '; }
+.panel[data-panel="europe"] .panel-title::before { content: '🇪🇺 '; }
+.panel[data-panel="middleeast"] .panel-title::before { content: '🌙 '; }
+.panel[data-panel="asia"] .panel-title::before { content: '🌏 '; }
+.panel[data-panel="africa"] .panel-title::before { content: '🌍 '; }
+.panel[data-panel="latam"] .panel-title::before { content: '🌎 '; }
+
+/* Colorful count badges */
+.panel-count {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  color: white;
+  font-weight: 600;
+}
+
+/* Status colors - make them pop */
+.status-live, [data-status="live"] {
+  color: #22c55e;
+  text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.status-warning, [data-status="warning"] {
+  color: #f59e0b;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.status-critical, [data-status="critical"] {
+  color: #ef4444;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+/* Colorful severity indicators */
+.severity-critical, .threat-critical { color: #ef4444; }
+.severity-high, .threat-high { color: #f97316; }
+.severity-elevated, .threat-medium { color: #eab308; }
+.severity-normal, .threat-low { color: #22c55e; }
+.severity-info, .threat-info { color: #3b82f6; }
+
+/* Positive/Negative value colors */
+.positive, .up, .gain { color: #22c55e !important; }
+.negative, .down, .loss { color: #ef4444 !important; }
+
+/* Colorful sparklines and charts */
+.sparkline-positive { stroke: #22c55e; }
+.sparkline-negative { stroke: #ef4444; }
+.sparkline-neutral { stroke: #3b82f6; }
+
+/* Rainbow gradient for special highlights */
+.rainbow-border {
+  border-image: linear-gradient(
+    90deg,
+    #f43f5e, #f97316, #eab308, #22c55e, #14b8a6, #3b82f6, #8b5cf6
+  ) 1;
+}
+
+/* Colorful scrollbar thumb on hover */
+.panel-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
+/* Vibrant link colors */
+a:not(.news-link):not(.intel-link) {
+  color: #60a5fa;
+}
+
+a:hover {
+  color: #93c5fd;
+}
+
+/* Colorful tabs */
+.panel-tab.active,
+.wi-tab.active {
+  color: #60a5fa;
+  border-bottom-color: #3b82f6;
+}
+
+/* Colorful loading skeleton */
+.skeleton,
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    rgba(139, 92, 246, 0.15) 50%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Colorful header accent */
+.header-redesign {
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.3) 0%,
+    rgba(139, 92, 246, 0.2) 50%,
+    rgba(59, 130, 246, 0.3) 100%
+  ) 1;
+}
+
+/* Live indicator with colorful glow */
+.header-live-dot {
+  background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
+  box-shadow:
+    0 0 8px #22c55e,
+    0 0 16px rgba(34, 197, 94, 0.4);
+}
+
+/* Colorful variant pills */
+.header-variant-pill[data-variant="full"].active {
+  background: rgba(34, 197, 94, 0.2);
+}
+.header-variant-pill[data-variant="tech"].active {
+  background: rgba(139, 92, 246, 0.2);
+}
+.header-variant-pill[data-variant="finance"].active {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+/* Colorful region select focus */
+.header-region-select:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+/* Colorful search button hover */
+.header-search-btn:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+/* Panel hover glow effect with color */
+.panel:hover {
+  box-shadow:
+    var(--atlas-glass-highlight),
+    var(--atlas-shadow-xl),
+    0 0 20px rgba(59, 130, 246, 0.1);
+}
