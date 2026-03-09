@@ -99,6 +99,15 @@ export function isDesktopRuntime(): boolean {
 
 export function getApiBaseUrl(): string {
   if (!isDesktopRuntime()) {
+    // In production web on Cloudflare Pages, use the Worker API
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname;
+      // Production: 4tlas.pages.dev or preview deployments
+      if (host === '4tlas.pages.dev' || host.endsWith('.4tlas.pages.dev')) {
+        return 'https://4tlas-api.worldmonitor.workers.dev';
+      }
+    }
+    // Local dev: Vite proxy handles /api routes
     return '';
   }
 
