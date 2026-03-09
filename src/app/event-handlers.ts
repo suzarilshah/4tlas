@@ -80,6 +80,7 @@ export class EventHandlerManager implements AppModule {
   private boundDropdownClickHandler: ((e: MouseEvent) => void) | null = null;
   private boundDropdownKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
   private boundMapResizeMoveHandler: ((e: MouseEvent) => void) | null = null;
+  private boundMapTouchMoveHandler: ((e: TouchEvent) => void) | null = null;
   private boundMapEndResizeHandler: (() => void) | null = null;
   private boundMapResizeVisChangeHandler: (() => void) | null = null;
   private boundMapFullscreenEscHandler: ((e: KeyboardEvent) => void) | null = null;
@@ -212,8 +213,14 @@ export class EventHandlerManager implements AppModule {
       document.removeEventListener('mousemove', this.boundMapResizeMoveHandler);
       this.boundMapResizeMoveHandler = null;
     }
+    if (this.boundMapTouchMoveHandler) {
+      document.removeEventListener('touchmove', this.boundMapTouchMoveHandler);
+      this.boundMapTouchMoveHandler = null;
+    }
     if (this.boundMapEndResizeHandler) {
       document.removeEventListener('mouseup', this.boundMapEndResizeHandler);
+      document.removeEventListener('touchend', this.boundMapEndResizeHandler);
+      document.removeEventListener('touchcancel', this.boundMapEndResizeHandler);
       window.removeEventListener('blur', this.boundMapEndResizeHandler);
       this.boundMapEndResizeHandler = null;
     }
@@ -972,22 +979,20 @@ export class EventHandlerManager implements AppModule {
     const mapSection = document.getElementById('mapSection');
     const mapContainer = document.getElementById('mapContainer');
     const resizeHandle = document.getElementById('mapResizeHandle');
+    const panelsGrid = document.getElementById('panelsGrid');
     if (!mapSection || !resizeHandle || !mapContainer) return;
 
     const getMinHeight = () => (window.innerWidth >= 1600 ? 280 : 350);
+    const getMinPanelsHeight = () => 200; // Minimum space for widget panels
     const getMaxHeight = () => {
       if (window.innerWidth < 1600) return Math.max(getMinHeight(), window.innerHeight - 150);
 
-      const bottomGrid = document.getElementById('mapBottomGrid');
-      const isEmpty = !bottomGrid || bottomGrid.children.length === 0;
       const headerHeight = 60;
       const totalAvailable = window.innerHeight - headerHeight;
+      const minPanelsSpace = getMinPanelsHeight();
 
-      if (isEmpty) {
-        return totalAvailable - 25;
-      } else {
-        return totalAvailable - 300;
-      }
+      // Ensure panels grid always has minimum space
+      return totalAvailable - minPanelsSpace;
     };
 
     const savedHeight = localStorage.getItem('map-height');
@@ -1021,21 +1026,35 @@ export class EventHandlerManager implements AppModule {
       this.ctx.map?.setIsResizing(false);
       this.ctx.map?.resize();
       mapSection.classList.remove('resizing');
+      panelsGrid?.classList.remove('panels-grid-resizing');
       document.body.style.cursor = '';
       localStorage.setItem('map-height', getTarget().style.height);
     };
     const endResize = this.boundMapEndResizeHandler;
 
-    resizeHandle.addEventListener('mousedown', (e) => {
+    const startResize = (clientY: number) => {
       isResizing = true;
-      startY = e.clientY;
+      startY = clientY;
       const target = getTarget();
       startHeight = target.offsetHeight;
       this.ctx.map?.setIsResizing(true);
       mapSection.classList.add('resizing');
       document.body.style.cursor = 'ns-resize';
+    };
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+      startResize(e.clientY);
       e.preventDefault();
     });
+
+    // Touch support for tablet devices
+    resizeHandle.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      if (e.touches.length === 1 && touch) {
+        startResize(touch.clientY);
+        e.preventDefault();
+      }
+    }, { passive: false });
 
     resizeHandle.addEventListener('dblclick', () => {
       const isWide = window.innerWidth >= 1600;
@@ -1078,9 +1097,37 @@ export class EventHandlerManager implements AppModule {
       if (isWide) target.style.flex = 'none';
       target.style.height = `${newHeight}px`;
 
+      // Visual feedback: panels grid responds dynamically
+      if (panelsGrid && isWide) {
+        panelsGrid.classList.add('panels-grid-resizing');
+      }
+
       this.ctx.map?.resize();
     };
     document.addEventListener('mousemove', this.boundMapResizeMoveHandler);
+
+    // Touch move handler
+    this.boundMapTouchMoveHandler = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (!isResizing || e.touches.length !== 1 || !touch) return;
+      const isWide = window.innerWidth >= 1600;
+      const target = isWide ? mapContainer : mapSection;
+
+      const deltaY = touch.clientY - startY;
+      const newHeight = Math.max(getMinHeight(), Math.min(startHeight + deltaY, getMaxHeight()));
+
+      if (isWide) target.style.flex = 'none';
+      target.style.height = `${newHeight}px`;
+
+      if (panelsGrid && isWide) {
+        panelsGrid.classList.add('panels-grid-resizing');
+      }
+
+      this.ctx.map?.resize();
+    };
+    document.addEventListener('touchmove', this.boundMapTouchMoveHandler, { passive: true });
+    document.addEventListener('touchend', endResize);
+    document.addEventListener('touchcancel', endResize);
 
     document.addEventListener('mouseup', endResize);
     window.addEventListener('blur', endResize);
