@@ -60,10 +60,7 @@ const FULL_PANELS: Record<string, PanelConfig> = {
   'airline-intel': { name: 'Airline Intelligence', enabled: true, priority: 2 },
   'tech-readiness': { name: 'Tech Readiness Index', enabled: true, priority: 2 },
   'world-clock': { name: 'World Clock', enabled: true, priority: 2 },
-  'space-weather': { name: 'Space Weather', enabled: true, priority: 2 },
-  'health-outbreaks': { name: 'Health Alerts', enabled: true, priority: 2 },
-  'election-calendar': { name: 'Elections', enabled: true, priority: 2 },
-  'shipping-stress': { name: 'Shipping Index', enabled: true, priority: 2 },
+  'world-intel': { name: 'World Intel', enabled: true, priority: 2 },
 };
 
 const FULL_MAP_LAYERS: MapLayers = {
@@ -205,7 +202,6 @@ const TECH_PANELS: Record<string, PanelConfig> = {
   hardware: { name: 'Semiconductors & Hardware', enabled: true, priority: 2 },
   cloud: { name: 'Cloud & Infrastructure', enabled: true, priority: 2 },
   dev: { name: 'Developer Community', enabled: true, priority: 2 },
-  github: { name: 'GitHub Trending', enabled: true, priority: 1 },
   ipo: { name: 'IPO & SPAC', enabled: true, priority: 2 },
   polymarket: { name: 'Tech Predictions', enabled: true, priority: 2 },
   funding: { name: 'Funding & VC', enabled: true, priority: 1 },
@@ -851,14 +847,14 @@ export const PANEL_CATEGORY_MAP: Record<string, { labelKey: string; panelKeys: s
   },
   dataTracking: {
     labelKey: 'header.panelCatDataTracking',
-    panelKeys: ['monitors', 'satellite-fires', 'ucdp-events', 'displacement', 'climate', 'population-exposure', 'security-advisories', 'oref-sirens', 'world-clock', 'tech-readiness', 'space-weather', 'health-outbreaks', 'election-calendar', 'shipping-stress'],
+    panelKeys: ['monitors', 'satellite-fires', 'ucdp-events', 'displacement', 'climate', 'population-exposure', 'security-advisories', 'oref-sirens', 'world-clock', 'tech-readiness', 'world-intel'],
     variants: ['full'],
   },
 
   // Tech variant
   techAi: {
     labelKey: 'header.panelCatTechAi',
-    panelKeys: ['ai', 'tech', 'hardware', 'cloud', 'dev', 'github', 'producthunt', 'events', 'service-status', 'tech-readiness'],
+    panelKeys: ['ai', 'tech', 'hardware', 'cloud', 'dev', 'producthunt', 'events', 'service-status', 'tech-readiness'],
     variants: ['tech'],
   },
   startupsVc: {

@@ -49,7 +49,4 @@ export * from './GulfEconomiesPanel';
 export * from './WorldClockPanel';
 export { AirlineIntelPanel } from './AirlineIntelPanel';
 export { AviationCommandBar } from './AviationCommandBar';
-export { SpaceWeatherPanel } from './SpaceWeatherPanel';
-export { HealthOutbreaksPanel } from './HealthOutbreaksPanel';
-export { ElectionCalendarPanel } from './ElectionCalendarPanel';
-export { ShippingStressPanel } from './ShippingStressPanel';
+export { WorldIntelPanel } from './WorldIntelPanel';
