@@ -135,22 +135,29 @@ export interface ProviderCredentials {
 
 export function getProviderCredentials(provider: string): ProviderCredentials | null {
   // Azure AI Foundry (Microsoft Foundry) - OpenAI-compatible endpoint
+  // Supports both AZURE_AI_* (Foundry) and AZURE_OPENAI_* (OpenAI) naming
   if (provider === 'azure') {
-    const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
-    const apiKey = process.env.AZURE_OPENAI_API_KEY;
+    const endpoint = process.env.AZURE_AI_ENDPOINT || process.env.AZURE_OPENAI_ENDPOINT;
+    const apiKey = process.env.AZURE_AI_KEY || process.env.AZURE_OPENAI_API_KEY;
     if (!endpoint || !apiKey) return null;
 
-    // Azure AI Foundry supports multiple endpoint formats:
-    // - https://{resource}.openai.azure.com/openai/v1/chat/completions
-    // - https://{resource}.services.ai.azure.com/openai/v1/chat/completions
-    const baseUrl = endpoint.replace(/\/$/, '');
-    const apiUrl = baseUrl.includes('/openai/')
-      ? `${baseUrl}/chat/completions`
-      : `${baseUrl}/openai/v1/chat/completions`;
+    // Handle multiple endpoint formats:
+    // 1. Full URL with deployment: https://{resource}.cognitiveservices.azure.com/openai/deployments/{model}/chat/completions?api-version=...
+    // 2. Base URL: https://{resource}.openai.azure.com or https://{resource}.services.ai.azure.com
+    let apiUrl: string;
+    if (endpoint.includes('/chat/completions')) {
+      // Already a complete endpoint URL
+      apiUrl = endpoint;
+    } else {
+      const baseUrl = endpoint.replace(/\/$/, '');
+      apiUrl = baseUrl.includes('/openai/')
+        ? `${baseUrl}/chat/completions`
+        : `${baseUrl}/openai/v1/chat/completions`;
+    }
 
     return {
       apiUrl,
-      model: process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini',
+      model: process.env.AZURE_AI_DEPLOYMENT || process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini',
       headers: {
         'api-key': apiKey,
         'Content-Type': 'application/json',
