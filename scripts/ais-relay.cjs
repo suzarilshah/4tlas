@@ -4128,13 +4128,18 @@ async function _fetchOpenSkyToken(clientId, clientSecret) {
 // Promisified upstream OpenSky fetch (single request)
 function _openskyRawFetch(url, token) {
   return new Promise((resolve) => {
+    const headers = {
+      'Accept': 'application/json',
+      'User-Agent': 'WorldMonitor/1.0',
+    };
+    // Only add Authorization header if token is present (authenticated mode)
+    // Otherwise use anonymous mode (lower rate limits but works when auth server is blocked)
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
     const request = https.get(url, {
       family: 4,
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'WorldMonitor/1.0',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
       timeout: 15000,
     }, (response) => {
       let data = '';
@@ -4274,14 +4279,11 @@ async function handleOpenSkyRequest(req, res, PORT) {
     };
     openskyInFlight.set(cacheKey, flightPromise);
 
+    // Try to get authenticated token, but fall back to anonymous mode if auth fails
+    // Anonymous mode has lower rate limits (400 req/day vs 4000) but works when auth server is blocked
     const token = await getOpenSkyToken();
     if (!token) {
-      // Do NOT negative-cache auth failures — they poison ALL bbox keys.
-      // Only negative-cache actual upstream 429/5xx responses.
-      settleFlight();
-      openskyInFlight.delete(cacheKey);
-      return safeEnd(res, 503, { 'Content-Type': 'application/json' },
-        JSON.stringify({ error: 'OpenSky not configured or auth failed', time: Date.now(), states: [] }));
+      logThrottled('warn', 'opensky-anon-fallback', '[Relay] OpenSky auth unavailable, falling back to anonymous mode');
     }
 
     let openskyUrl = 'https://opensky-network.org/api/states/all';
