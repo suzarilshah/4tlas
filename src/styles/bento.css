@@ -1,339 +1,446 @@
 /* ============================================================================
-   BENTO DASHBOARD LAYOUT
-   Premium $100B dashboard aesthetic inspired by Apple, Linear, Vercel
+   APPLE-STYLE BENTO DASHBOARD
+   Clean, modular grid layout with OSINT aesthetic
    ============================================================================ */
 
-/* ── CSS Variables for Bento ── */
+/* ══════════════════════════════════════════════════════════════════════════
+   DESIGN TOKENS - Apple-inspired with OSINT green accents
+   ══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --bento-gap: 16px;
-  --bento-radius: 20px;
-  --bento-radius-sm: 14px;
-  --bento-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.12);
-  --bento-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12), 0 16px 48px rgba(0, 0, 0, 0.16);
-  --bento-border: 1px solid rgba(255, 255, 255, 0.08);
-  --bento-glass: rgba(255, 255, 255, 0.03);
-  --bento-glass-border: rgba(255, 255, 255, 0.06);
-  --bento-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Core Colors - Dark Mode */
+  --bento-bg: #0a0a0a;
+  --bento-surface: #141414;
+  --bento-surface-elevated: #1a1a1a;
+  --bento-surface-hover: #1f1f1f;
+
+  /* OSINT Green Accent */
+  --bento-accent: #00ff41;
+  --bento-accent-dim: #00cc33;
+  --bento-accent-subtle: rgba(0, 255, 65, 0.08);
+  --bento-accent-glow: rgba(0, 255, 65, 0.15);
+
+  /* Text Hierarchy */
+  --bento-text: #e5e5e5;
+  --bento-text-secondary: #a3a3a3;
+  --bento-text-muted: #737373;
+
+  /* Borders */
+  --bento-border: rgba(255, 255, 255, 0.08);
+  --bento-border-hover: rgba(255, 255, 255, 0.15);
+  --bento-border-accent: rgba(0, 255, 65, 0.25);
+
+  /* Semantic Colors */
+  --bento-red: #ef4444;
+  --bento-yellow: #eab308;
+  --bento-cyan: #06b6d4;
+  --bento-purple: #a855f7;
+
+  /* Layout */
+  --bento-gap: 12px;
+  --bento-radius: 12px;
+  --bento-radius-sm: 8px;
+
+  /* Typography */
+  --bento-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  --bento-font-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+
+  /* News Item Height - calculated for 5 items */
+  --news-item-height: 56px;
+  --news-panel-content-height: calc(var(--news-item-height) * 5 + 40px);
 }
 
-[data-theme="light"] {
-  --bento-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 8px 32px rgba(0, 0, 0, 0.06);
-  --bento-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.08), 0 16px 48px rgba(0, 0, 0, 0.1);
-  --bento-border: 1px solid rgba(0, 0, 0, 0.06);
-  --bento-glass: rgba(255, 255, 255, 0.6);
-  --bento-glass-border: rgba(0, 0, 0, 0.08);
-}
-
-/* ── Main Bento Container ── */
-.bento-dashboard {
+/* ══════════════════════════════════════════════════════════════════════════
+   MAIN DASHBOARD GRID - APPLE BENTO LAYOUT
+   3-column layout: Map takes left, panels flow right
+   ══════════════════════════════════════════════════════════════════════════ */
+.main-content.bento-dashboard {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: minmax(400px, 1.8fr) 1fr 1fr;
   grid-template-rows: auto;
+  grid-auto-rows: min-content;
+  grid-auto-flow: dense; /* Fill gaps automatically */
   gap: var(--bento-gap);
   padding: var(--bento-gap);
-  min-height: calc(100vh - 60px);
-  background: var(--bg);
+  min-height: calc(100vh - 56px);
+  background: var(--bento-bg);
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
 }
 
-/* ── Bento Card Base ── */
-.bento-card {
-  background: var(--surface);
+/* ══════════════════════════════════════════════════════════════════════════
+   MAP SECTION - Primary visual anchor (left column)
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .bento-card.bento-map {
+  grid-column: 1;
+  grid-row: 1 / span 4;
+  min-height: 500px;
+  height: calc(100vh - 80px);
+  max-height: calc(100vh - 80px);
+  background: var(--bento-surface);
+  border: 1px solid var(--bento-border);
   border-radius: var(--bento-radius);
-  border: var(--bento-border);
-  box-shadow: var(--bento-shadow);
   overflow: hidden;
   position: relative;
-  transition: transform var(--bento-transition), box-shadow var(--bento-transition);
   display: flex;
   flex-direction: column;
 }
 
-.bento-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--bento-shadow-hover);
-}
-
-/* ── Card Sizes ── */
-.bento-card.bento-map {
-  grid-column: span 1;
-  grid-row: span 2;
-  min-height: 400px;
-}
-
-.bento-card.bento-1x1 {
-  grid-column: span 1;
-  grid-row: span 1;
-  min-height: 180px;
-}
-
-.bento-card.bento-2x1 {
-  grid-column: span 2;
-  grid-row: span 1;
-  min-height: 180px;
-}
-
-.bento-card.bento-1x2 {
-  grid-column: span 1;
-  grid-row: span 2;
-  min-height: 380px;
-}
-
-.bento-card.bento-2x2 {
-  grid-column: span 2;
-  grid-row: span 2;
-  min-height: 380px;
-}
-
-.bento-card.bento-3x1 {
-  grid-column: span 3;
-  grid-row: span 1;
-  min-height: 180px;
-}
-
-.bento-card.bento-3x2 {
-  grid-column: span 3;
-  grid-row: span 2;
-  min-height: 380px;
-}
-
-/* ── Card Header ── */
-.bento-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.bento-card-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
-
-.bento-card-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark, var(--accent)) 100%);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(68, 136, 255, 0.3);
-}
-
-.bento-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bento-card-action {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  border: none;
-  background: var(--bg-tertiary, rgba(128, 128, 128, 0.1));
-  color: var(--text-dim);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.bento-card-action:hover {
-  background: var(--accent);
-  color: #fff;
-  transform: scale(1.05);
-}
-
-/* ── Card Content ── */
-.bento-card-content {
+/* Map container - ensure it fills the space */
+.bento-dashboard .bento-map .map-container,
+.bento-dashboard .bento-map .bento-card-content {
   flex: 1;
-  padding: 16px 20px;
-  overflow: auto;
   position: relative;
-}
-
-.bento-card-content::-webkit-scrollbar {
-  width: 4px;
-}
-
-.bento-card-content::-webkit-scrollbar-thumb {
-  background: var(--text-faint);
-  border-radius: 2px;
-}
-
-/* ── Map Card Special Styling ── */
-.bento-map {
-  background: var(--bg-secondary);
-}
-
-.bento-map .bento-card-content {
-  padding: 0;
-  position: relative;
-}
-
-.bento-map .map-container {
-  position: absolute;
-  inset: 0;
+  min-height: 0;
   border-radius: 0 0 var(--bento-radius) var(--bento-radius);
   overflow: hidden;
 }
 
-.bento-map-controls {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-}
-
-.bento-map-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: none;
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
+/* Map header */
+.bento-dashboard .bento-map .bento-card-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  box-shadow: var(--bento-shadow);
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-}
-
-.bento-map-btn:hover {
-  background: var(--accent);
-  color: #fff;
-  transform: scale(1.05);
-}
-
-/* ── Live Indicator ── */
-.bento-live-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #ef4444;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.bento-live-dot {
-  width: 6px;
-  height: 6px;
-  background: #ef4444;
-  border-radius: 50%;
-  animation: bento-pulse 2s ease-in-out infinite;
-}
-
-@keyframes bento-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-/* ── Stat Cards ── */
-.bento-stat {
-  display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  height: 100%;
+  padding: 10px 14px;
+  background: var(--bento-surface-elevated);
+  border-bottom: 1px solid var(--bento-border);
+  flex-shrink: 0;
 }
 
-.bento-stat-value {
-  font-size: 36px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+/* Ensure map canvas renders properly */
+.bento-dashboard .bento-map canvas,
+.bento-dashboard .bento-map .maplibregl-map,
+.bento-dashboard .bento-map .maplibregl-canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
-.bento-stat-label {
-  font-size: 13px;
-  color: var(--text-dim);
-  margin-top: 4px;
+/* ══════════════════════════════════════════════════════════════════════════
+   PANELS GRID - Flows into columns 2 and 3
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panels-grid.bento-panels {
+  display: contents;
 }
 
-.bento-stat-trend {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
-  margin-top: 12px;
-}
-
-.bento-stat-trend.up {
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
-}
-
-.bento-stat-trend.down {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
-}
-
-/* ── News List ── */
-.bento-news-list {
+/* ══════════════════════════════════════════════════════════════════════════
+   PANEL BASE - Clean Apple card style
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel {
+  background: var(--bento-surface);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  /* CRITICAL: Prevent stacking - each panel is self-contained */
+  position: relative;
+  z-index: 1;
 }
 
-.bento-news-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px;
-  background: var(--bg-tertiary, rgba(128, 128, 128, 0.05));
-  border-radius: var(--bento-radius-sm);
-  transition: background 0.2s ease;
-  cursor: pointer;
+.bento-dashboard .panel:hover {
+  border-color: var(--bento-border-hover);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
-.bento-news-item:hover {
-  background: var(--overlay-light, rgba(128, 128, 128, 0.1));
-}
-
-.bento-news-source {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--surface);
+/* ══════════════════════════════════════════════════════════════════════════
+   PANEL HEADER - Minimal, clean
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 18px;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: transparent;
+  border-bottom: 1px solid var(--bento-border);
+  flex-shrink: 0;
+  min-height: 44px;
 }
 
-.bento-news-content {
-  flex: 1;
+.bento-dashboard .panel-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
+  flex: 1;
 }
 
-.bento-news-title {
+.bento-dashboard .panel-title {
+  font-family: var(--bento-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bento-text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Accent color for panel titles based on type */
+.bento-dashboard .panel[data-panel="live-news"] .panel-title,
+.bento-dashboard .panel[data-panel="gdelt-intel"] .panel-title {
+  color: var(--bento-red);
+}
+
+.bento-dashboard .panel[data-panel="intel"] .panel-title,
+.bento-dashboard .panel[data-panel="telegram-intel"] .panel-title {
+  color: var(--bento-purple);
+}
+
+.bento-dashboard .panel[data-panel="markets"] .panel-title,
+.bento-dashboard .panel[data-panel="crypto"] .panel-title,
+.bento-dashboard .panel[data-panel="finance"] .panel-title {
+  color: var(--bento-cyan);
+}
+
+.bento-dashboard .panel[data-panel="insights"] .panel-title,
+.bento-dashboard .panel[data-panel="strategic-posture"] .panel-title {
+  color: var(--bento-accent);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PANEL CONTENT - Base styles
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel-content {
+  flex: 1;
+  padding: 12px 16px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VIDEO PANELS - Live News & Webcams (16:9 aspect ratio)
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="live-news"],
+.bento-dashboard .panel[data-panel="live-webcams"] {
+  min-height: auto;
+  max-height: none;
+  height: auto;
+}
+
+.bento-dashboard .panel[data-panel="live-news"] .panel-content,
+.bento-dashboard .panel[data-panel="live-webcams"] .panel-content {
+  padding: 0;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Video player container */
+.bento-dashboard .live-news-player,
+.bento-dashboard .live-webcams-player {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* Channel/webcam switcher - compact in bento */
+.bento-dashboard .live-news-toolbar,
+.bento-dashboard .live-webcams-toolbar {
+  flex-shrink: 0;
+}
+
+.bento-dashboard .live-news-switcher,
+.bento-dashboard .webcam-switcher {
+  gap: 4px;
+  padding: 6px 8px;
+}
+
+.bento-dashboard .live-news-switcher button,
+.bento-dashboard .webcam-switcher button {
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   NEWS PANELS - Fixed height for 5 items with scroll
+   Intel Feed, World News, Energy, Think Tank, Tech, AI/ML, Financial, Regional
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="intel"],
+.bento-dashboard .panel[data-panel="gdelt-intel"],
+.bento-dashboard .panel[data-panel="politics"],
+.bento-dashboard .panel[data-panel="us"],
+.bento-dashboard .panel[data-panel="europe"],
+.bento-dashboard .panel[data-panel="middleeast"],
+.bento-dashboard .panel[data-panel="africa"],
+.bento-dashboard .panel[data-panel="latam"],
+.bento-dashboard .panel[data-panel="asia"],
+.bento-dashboard .panel[data-panel="energy"],
+.bento-dashboard .panel[data-panel="thinktanks"],
+.bento-dashboard .panel[data-panel="tech"],
+.bento-dashboard .panel[data-panel="ai"],
+.bento-dashboard .panel[data-panel="finance"],
+.bento-dashboard .panel[data-panel="telegram-intel"],
+.bento-dashboard .panel[data-panel="gov"],
+.bento-dashboard .panel[data-panel="security"] {
+  /* Fixed height to fit exactly 5 news items */
+  min-height: 380px;
+  max-height: 420px;
+  height: auto;
+}
+
+/* News panel content - scrollable, sized for 5 items */
+.bento-dashboard .panel[data-panel="intel"] .panel-content,
+.bento-dashboard .panel[data-panel="gdelt-intel"] .panel-content,
+.bento-dashboard .panel[data-panel="politics"] .panel-content,
+.bento-dashboard .panel[data-panel="us"] .panel-content,
+.bento-dashboard .panel[data-panel="europe"] .panel-content,
+.bento-dashboard .panel[data-panel="middleeast"] .panel-content,
+.bento-dashboard .panel[data-panel="africa"] .panel-content,
+.bento-dashboard .panel[data-panel="latam"] .panel-content,
+.bento-dashboard .panel[data-panel="asia"] .panel-content,
+.bento-dashboard .panel[data-panel="energy"] .panel-content,
+.bento-dashboard .panel[data-panel="thinktanks"] .panel-content,
+.bento-dashboard .panel[data-panel="tech"] .panel-content,
+.bento-dashboard .panel[data-panel="ai"] .panel-content,
+.bento-dashboard .panel[data-panel="finance"] .panel-content,
+.bento-dashboard .panel[data-panel="telegram-intel"] .panel-content,
+.bento-dashboard .panel[data-panel="gov"] .panel-content,
+.bento-dashboard .panel[data-panel="security"] .panel-content {
+  height: var(--news-panel-content-height);
+  max-height: var(--news-panel-content-height);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DYNAMIC PANELS - Auto-size to show ALL content
+   AI Insight, Strategic Posture, Risk Overview, Infrastructure, Monitors, Security
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="insights"],
+.bento-dashboard .panel[data-panel="strategic-posture"],
+.bento-dashboard .panel[data-panel="strategic-risk"],
+.bento-dashboard .panel[data-panel="cascade"],
+.bento-dashboard .panel[data-panel="monitors"],
+.bento-dashboard .panel[data-panel="security-advisories"],
+.bento-dashboard .panel[data-panel="world-intel"] {
+  /* Dynamic height - grows with content */
+  min-height: 200px;
+  max-height: none;
+  height: auto;
+}
+
+/* Dynamic panel content - shows everything */
+.bento-dashboard .panel[data-panel="insights"] .panel-content,
+.bento-dashboard .panel[data-panel="strategic-posture"] .panel-content,
+.bento-dashboard .panel[data-panel="strategic-risk"] .panel-content,
+.bento-dashboard .panel[data-panel="cascade"] .panel-content,
+.bento-dashboard .panel[data-panel="monitors"] .panel-content,
+.bento-dashboard .panel[data-panel="security-advisories"] .panel-content,
+.bento-dashboard .panel[data-panel="world-intel"] .panel-content {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CII PANEL - Fixed height for 8 countries with scroll
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="cii"] {
+  min-height: 540px;
+  max-height: 600px;
+  height: auto;
+}
+
+.bento-dashboard .panel[data-panel="cii"] .panel-content {
+  /* Height for ~8 countries (each ~65px + 8px gap) */
+  max-height: 550px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CII PANEL - Country Instability styling
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="cii"] .cii-country {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  margin-bottom: 8px;
+  transition: all 0.15s ease;
+}
+
+.bento-dashboard .panel[data-panel="cii"] .cii-country:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--bento-border-hover);
+}
+
+.bento-dashboard .panel[data-panel="cii"] .cii-country:last-child {
+  margin-bottom: 0;
+}
+
+.bento-dashboard .panel[data-panel="cii"] .cii-name {
+  color: var(--bento-text);
+}
+
+.bento-dashboard .panel[data-panel="cii"] .cii-score {
+  color: var(--bento-accent);
+  font-family: var(--bento-font-mono);
+}
+
+.bento-dashboard .panel[data-panel="cii"] .cii-components {
+  color: var(--bento-text-muted);
+  font-family: var(--bento-font-mono);
+  font-size: 10px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MARKET/DATA PANELS - Compact, fixed height
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="markets"],
+.bento-dashboard .panel[data-panel="crypto"],
+.bento-dashboard .panel[data-panel="commodities"],
+.bento-dashboard .panel[data-panel="economic"],
+.bento-dashboard .panel[data-panel="polymarket"],
+.bento-dashboard .panel[data-panel="macro-signals"],
+.bento-dashboard .panel[data-panel="heatmap"],
+.bento-dashboard .panel[data-panel="stablecoins"],
+.bento-dashboard .panel[data-panel="etf-flows"] {
+  min-height: 280px;
+  max-height: 360px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   NEWS ITEM STYLING - Clean, scannable
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .news-item,
+.bento-dashboard .cluster-item,
+.bento-dashboard .event-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  border-left: 3px solid var(--bento-accent-dim);
+  border-radius: var(--bento-radius-sm);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  min-height: var(--news-item-height);
+  box-sizing: border-box;
+}
+
+.bento-dashboard .news-item:hover,
+.bento-dashboard .cluster-item:hover,
+.bento-dashboard .event-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--bento-border);
+  border-left-color: var(--bento-accent);
+}
+
+.bento-dashboard .news-item:last-child,
+.bento-dashboard .cluster-item:last-child {
+  margin-bottom: 0;
+}
+
+/* News title */
+.bento-dashboard .news-title,
+.bento-dashboard .news-item .title,
+.bento-dashboard .cluster-title {
+  font-family: var(--bento-font);
   font-size: 13px;
   font-weight: 500;
-  color: var(--text);
+  color: var(--bento-text);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -341,170 +448,265 @@
   overflow: hidden;
 }
 
-.bento-news-meta {
+/* News meta */
+.bento-dashboard .news-meta,
+.bento-dashboard .news-item .source-time,
+.bento-dashboard .cluster-meta {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-top: 6px;
-  font-size: 11px;
-  color: var(--text-dim);
+  font-family: var(--bento-font-mono);
+  font-size: 10px;
+  color: var(--bento-text-muted);
 }
 
-/* ── Chart Placeholder ── */
-.bento-chart {
-  height: 100%;
+.bento-dashboard .news-source {
+  color: var(--bento-accent-dim);
+  font-weight: 600;
+}
+
+/* Critical/alert news items */
+.bento-dashboard .news-item.alert,
+.bento-dashboard .news-item.critical,
+.bento-dashboard .cluster-item.critical {
+  border-left-color: var(--bento-red);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.bento-dashboard .news-item.alert:hover,
+.bento-dashboard .news-item.critical:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SCROLLBAR - Minimal, Apple-style
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bento-dashboard .panel-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bento-dashboard .panel-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.bento-dashboard .panel-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REGION-BASED PANEL VISIBILITY
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Americas selected */
+[data-region="america"] .bento-dashboard .panel[data-panel="middleeast"],
+[data-region="america"] .bento-dashboard .panel[data-panel="europe"],
+[data-region="america"] .bento-dashboard .panel[data-panel="asia"],
+[data-region="america"] .bento-dashboard .panel[data-panel="africa"] {
+  display: none !important;
+}
+
+/* MENA selected */
+[data-region="mena"] .bento-dashboard .panel[data-panel="us"],
+[data-region="mena"] .bento-dashboard .panel[data-panel="latam"],
+[data-region="mena"] .bento-dashboard .panel[data-panel="asia"],
+[data-region="mena"] .bento-dashboard .panel[data-panel="africa"] {
+  display: none !important;
+}
+
+/* Europe selected */
+[data-region="eu"] .bento-dashboard .panel[data-panel="us"],
+[data-region="eu"] .bento-dashboard .panel[data-panel="middleeast"],
+[data-region="eu"] .bento-dashboard .panel[data-panel="asia"],
+[data-region="eu"] .bento-dashboard .panel[data-panel="latam"],
+[data-region="eu"] .bento-dashboard .panel[data-panel="africa"] {
+  display: none !important;
+}
+
+/* Asia selected */
+[data-region="asia"] .bento-dashboard .panel[data-panel="us"],
+[data-region="asia"] .bento-dashboard .panel[data-panel="middleeast"],
+[data-region="asia"] .bento-dashboard .panel[data-panel="europe"],
+[data-region="asia"] .bento-dashboard .panel[data-panel="latam"],
+[data-region="asia"] .bento-dashboard .panel[data-panel="africa"] {
+  display: none !important;
+}
+
+/* LATAM selected */
+[data-region="latam"] .bento-dashboard .panel[data-panel="middleeast"],
+[data-region="latam"] .bento-dashboard .panel[data-panel="europe"],
+[data-region="latam"] .bento-dashboard .panel[data-panel="asia"],
+[data-region="latam"] .bento-dashboard .panel[data-panel="africa"] {
+  display: none !important;
+}
+
+/* Africa selected */
+[data-region="africa"] .bento-dashboard .panel[data-panel="us"],
+[data-region="africa"] .bento-dashboard .panel[data-panel="latam"],
+[data-region="africa"] .bento-dashboard .panel[data-panel="asia"],
+[data-region="africa"] .bento-dashboard .panel[data-panel="europe"] {
+  display: none !important;
+}
+
+/* Oceania selected */
+[data-region="oceania"] .bento-dashboard .panel[data-panel="us"],
+[data-region="oceania"] .bento-dashboard .panel[data-panel="middleeast"],
+[data-region="oceania"] .bento-dashboard .panel[data-panel="europe"],
+[data-region="oceania"] .bento-dashboard .panel[data-panel="latam"],
+[data-region="oceania"] .bento-dashboard .panel[data-panel="africa"] {
+  display: none !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LIVE INDICATOR - Subtle pulse
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel-data-badge,
+.bento-dashboard .bento-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: rgba(0, 255, 65, 0.08);
+  border: 1px solid var(--bento-border-accent);
+  border-radius: 6px;
+  font-family: var(--bento-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--bento-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.bento-dashboard .bento-live-dot,
+.bento-dashboard .live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--bento-accent);
+  border-radius: 50%;
+  animation: bento-pulse 2s ease-in-out infinite;
+}
+
+@keyframes bento-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HIDE UNNECESSARY ELEMENTS - Apple minimalism
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Hide resize handles - not needed in fixed grid */
+.bento-dashboard .panel-resize-handle,
+.bento-dashboard .panel-col-resize-handle,
+.bento-dashboard .map-resize-handle {
+  display: none !important;
+}
+
+/* Hide panel icons - titles are enough */
+.bento-dashboard .panel-icon {
+  display: none !important;
+}
+
+/* Hide deviation badges - reduces clutter */
+.bento-dashboard .deviation-badge {
+  display: none !important;
+}
+
+/* Panel actions visible on hover only */
+.bento-dashboard .panel-header-right,
+.bento-dashboard .panel-actions {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.bento-dashboard .panel:hover .panel-header-right,
+.bento-dashboard .panel:hover .panel-actions {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MARKET DATA STYLING
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .market-item,
+.bento-dashboard .stock-item,
+.bento-dashboard .crypto-item {
   display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  padding: 20px 0;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bento-border);
 }
 
-.bento-chart-bar {
-  flex: 1;
-  background: linear-gradient(to top, var(--accent), var(--accent-muted, rgba(68, 136, 255, 0.3)));
-  border-radius: 4px 4px 0 0;
-  min-height: 20px;
-  transition: height 0.3s ease;
+.bento-dashboard .market-item:last-child {
+  border-bottom: none;
 }
 
-/* ── Fullscreen Mode ── */
-.bento-card.fullscreen {
+.bento-dashboard .market-symbol {
+  font-family: var(--bento-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bento-text);
+}
+
+.bento-dashboard .market-price {
+  font-family: var(--bento-font-mono);
+  font-size: 13px;
+  color: var(--bento-text-secondary);
+}
+
+.bento-dashboard .market-change {
+  font-family: var(--bento-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.bento-dashboard .market-change.positive,
+.bento-dashboard .market-change.up {
+  color: var(--bento-accent);
+  background: var(--bento-accent-subtle);
+}
+
+.bento-dashboard .market-change.negative,
+.bento-dashboard .market-change.down {
+  color: var(--bento-red);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FULLSCREEN MODE
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .bento-map.fullscreen,
+.bento-dashboard .panel.fullscreen {
   position: fixed !important;
   inset: 0 !important;
   z-index: 9999 !important;
+  border-radius: 0 !important;
+  max-height: 100vh !important;
   grid-column: 1 / -1 !important;
   grid-row: 1 / -1 !important;
-  border-radius: 0 !important;
-  min-height: 100vh !important;
-  animation: bento-fullscreen-in 0.3s ease;
 }
 
-@keyframes bento-fullscreen-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* ── Responsive: Tablet ── */
-@media (max-width: 1200px) {
-  .bento-dashboard {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .bento-card.bento-map {
-    grid-column: span 1;
-  }
-
-  .bento-card.bento-3x1,
-  .bento-card.bento-3x2 {
-    grid-column: span 3;
-  }
-}
-
-/* ── Responsive: Mobile ── */
-@media (max-width: 768px) {
-  .bento-dashboard {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 12px;
-  }
-
-  .bento-card {
-    border-radius: var(--bento-radius-sm);
-  }
-
-  .bento-card.bento-map {
-    grid-column: span 2;
-    grid-row: span 1;
-    min-height: 250px;
-  }
-
-  .bento-card.bento-2x1,
-  .bento-card.bento-2x2,
-  .bento-card.bento-3x1,
-  .bento-card.bento-3x2 {
-    grid-column: span 2;
-  }
-
-  .bento-card.bento-1x2 {
-    grid-row: span 1;
-  }
-
-  .bento-card-header {
-    padding: 12px 16px 10px;
-  }
-
-  .bento-card-content {
-    padding: 12px 16px;
-  }
-
-  .bento-stat-value {
-    font-size: 28px;
-  }
-}
-
-@media (max-width: 480px) {
-  .bento-dashboard {
-    grid-template-columns: 1fr;
-  }
-
-  .bento-card.bento-map,
-  .bento-card.bento-2x1,
-  .bento-card.bento-2x2,
-  .bento-card.bento-3x1,
-  .bento-card.bento-3x2,
-  .bento-card.bento-1x1,
-  .bento-card.bento-1x2 {
-    grid-column: span 1;
-    grid-row: span 1;
-  }
-}
-
-/* ── Glass Effect Cards ── */
-.bento-card.glass {
-  background: var(--bento-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--bento-glass-border);
-}
-
-/* ── Gradient Accent Cards ── */
-.bento-card.accent-blue {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
-  border-color: rgba(59, 130, 246, 0.2);
-}
-
-.bento-card.accent-green {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%);
-  border-color: rgba(16, 185, 129, 0.2);
-}
-
-.bento-card.accent-red {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
-  border-color: rgba(239, 68, 68, 0.2);
-}
-
-.bento-card.accent-purple {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%);
-  border-color: rgba(139, 92, 246, 0.2);
-}
-
-.bento-card.accent-orange {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(234, 88, 12, 0.05) 100%);
-  border-color: rgba(249, 115, 22, 0.2);
-}
-
-/* ── Skeleton Loading ── */
-.bento-skeleton {
-  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--surface) 50%, var(--bg-tertiary) 75%);
+/* ══════════════════════════════════════════════════════════════════════════
+   LOADING STATES
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .loading,
+.bento-dashboard .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bento-surface) 25%,
+    var(--bento-surface-elevated) 50%,
+    var(--bento-surface) 75%
+  );
   background-size: 200% 100%;
   animation: bento-shimmer 1.5s infinite;
-  border-radius: 8px;
+  border-radius: var(--bento-radius-sm);
 }
 
 @keyframes bento-shimmer {
@@ -512,316 +714,897 @@
   100% { background-position: -200% 0; }
 }
 
-/* ── Empty State ── */
-.bento-empty {
+/* ══════════════════════════════════════════════════════════════════════════
+   EMPTY STATES
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .empty-state,
+.bento-dashboard .no-data {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  color: var(--text-dim);
+  padding: 32px 16px;
+  color: var(--bento-text-muted);
   text-align: center;
-  padding: 20px;
-}
-
-.bento-empty-icon {
-  font-size: 32px;
-  margin-bottom: 12px;
-  opacity: 0.5;
-}
-
-.bento-empty-text {
   font-size: 13px;
 }
 
-/* ============================================================================
-   TRANSFORM EXISTING PANELS TO BENTO CARDS
-   ============================================================================ */
-
-/* ── Override Main Content Layout ── */
-.main-content.bento-dashboard {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(180px, auto);
-  gap: var(--bento-gap, 16px);
-  padding: var(--bento-gap, 16px);
-  min-height: calc(100vh - 60px);
-  overflow-y: auto;
-  align-content: start;
+/* ══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1400px) {
+  .main-content.bento-dashboard {
+    grid-template-columns: minmax(350px, 1.5fr) 1fr 1fr;
+  }
 }
 
-/* ── Map Section as Bento Card - Large 2x2 ── */
-.bento-dashboard .bento-card.bento-map {
-  grid-column: span 2;
-  grid-row: span 2;
-  min-height: 450px;
-  max-height: none;
-  height: auto;
-  order: -1; /* Push map to start */
-}
-
-.bento-dashboard .bento-map .map-container {
-  position: absolute;
-  inset: 0;
-  border-radius: 0 0 var(--bento-radius, 20px) var(--bento-radius, 20px);
-}
-
-/* ── Map Resize Handle - Re-enable for bento ── */
-.bento-dashboard .bento-map .map-resize-handle {
-  display: flex !important;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 12px;
-  cursor: ns-resize;
-  background: transparent;
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0 0 var(--bento-radius, 20px) var(--bento-radius, 20px);
-}
-
-.bento-dashboard .bento-map .map-resize-handle::after {
-  content: '';
-  width: 48px;
-  height: 4px;
-  background: var(--text-dim);
-  border-radius: 3px;
-  opacity: 0.4;
-  transition: opacity 0.2s, background 0.2s;
-}
-
-.bento-dashboard .bento-map .map-resize-handle:hover::after {
-  opacity: 1;
-  background: var(--accent, #4488ff);
-}
-
-/* ── Panels Grid as Inline Bento ── */
-.bento-dashboard .panels-grid.bento-panels {
-  display: contents;
-}
-
-/* ── Transform All Panels to Bento Cards ── */
-.bento-dashboard .panel {
-  background: var(--surface);
-  border-radius: var(--bento-radius, 20px);
-  border: var(--bento-border, 1px solid rgba(255, 255, 255, 0.08));
-  box-shadow: var(--bento-shadow, 0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.12));
-  overflow: hidden;
-  position: relative;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-  grid-column: span 1;
-  min-height: 200px;
-}
-
-.bento-dashboard .panel:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--bento-shadow-hover, 0 4px 16px rgba(0, 0, 0, 0.12), 0 16px 48px rgba(0, 0, 0, 0.16));
-}
-
-/* ── Wide Panels ── */
-.bento-dashboard .panel.panel-wide,
-.bento-dashboard .panel.col-span-2 {
-  grid-column: span 2;
-}
-
-.bento-dashboard .panel.col-span-3 {
-  grid-column: span 3;
-}
-
-/* ── Tall Panels ── */
-.bento-dashboard .panel.row-span-2,
-.bento-dashboard .panel.span-2 {
-  grid-row: span 2;
-  min-height: 400px;
-}
-
-/* ── Panel Header Redesign ── */
-.bento-dashboard .panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  gap: 12px;
-}
-
-.bento-dashboard .panel-header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.bento-dashboard .panel-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
-
-/* ── Panel Content ── */
-.bento-dashboard .panel-content {
-  flex: 1;
-  padding: 16px 20px;
-  overflow: auto;
-  position: relative;
-}
-
-/* ── Hide Resize Handles in Bento Mode ── */
-.bento-dashboard .panel-resize-handle,
-.bento-dashboard .panel-col-resize-handle,
-.bento-dashboard .map-resize-handle {
-  display: none !important;
-}
-
-/* ── News Panel Specific ── */
-.bento-dashboard .news-item {
-  padding: 12px 14px;
-  margin: 0 -6px;
-  border-radius: 12px;
-  transition: background 0.2s ease;
-}
-
-.bento-dashboard .news-item:hover {
-  background: var(--overlay-light, rgba(128, 128, 128, 0.08));
-}
-
-/* ── Featured Panels (AI Summary, Breaking News) ── */
-.bento-dashboard .panel[data-panel="ai-summary"],
-.bento-dashboard .panel[data-panel="breaking-news"] {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%);
-  border-color: rgba(59, 130, 246, 0.15);
-  grid-column: span 2;
-}
-
-.bento-dashboard .panel[data-panel="live-news"] {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.03) 100%);
-  border-color: rgba(239, 68, 68, 0.15);
-  grid-column: 3 / 5; /* Position on right side, columns 3-4 */
-  grid-row: span 2;
-}
-
-.bento-dashboard .panel[data-panel="markets"],
-.bento-dashboard .panel[data-panel="crypto"] {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.03) 100%);
-  border-color: rgba(16, 185, 129, 0.15);
-}
-
-.bento-dashboard .panel[data-panel="telegram-intel"] {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(124, 58, 237, 0.03) 100%);
-  border-color: rgba(139, 92, 246, 0.15);
-  grid-row: span 2;
-}
-
-/* ── Status Badges ── */
-.bento-dashboard .panel-data-badge {
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-/* ── Mobile Responsive ── */
 @media (max-width: 1200px) {
   .main-content.bento-dashboard {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr;
   }
 
-  .bento-dashboard .bento-map {
-    grid-column: span 2;
-  }
-
-  .bento-dashboard .panel[data-panel="live-news"] {
-    grid-column: span 1;
-    grid-row: span 2;
-  }
-
-  .bento-dashboard .panel.col-span-3 {
-    grid-column: span 3;
+  .bento-dashboard .bento-card.bento-map {
+    grid-column: 1 / 3;
+    grid-row: auto;
+    height: 400px;
+    min-height: 350px;
+    max-height: 450px;
   }
 }
 
-@media (max-width: 900px) {
-  .main-content.bento-dashboard {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 12px;
-  }
-
-  .bento-dashboard .bento-map {
-    grid-column: span 2;
-    grid-row: span 1;
-    min-height: 280px;
-  }
-
-  .bento-dashboard .panel,
-  .bento-dashboard .panel.panel-wide,
-  .bento-dashboard .panel.col-span-2,
-  .bento-dashboard .panel.col-span-3 {
-    grid-column: span 1;
-    border-radius: 16px;
-  }
-
-  .bento-dashboard .panel[data-panel="live-news"],
-  .bento-dashboard .panel[data-panel="ai-summary"] {
-    grid-column: span 2;
-  }
-}
-
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .main-content.bento-dashboard {
     grid-template-columns: 1fr;
     gap: 10px;
     padding: 10px;
   }
 
-  .bento-dashboard .bento-map,
-  .bento-dashboard .panel,
-  .bento-dashboard .panel.panel-wide,
-  .bento-dashboard .panel.col-span-2,
-  .bento-dashboard .panel.col-span-3,
-  .bento-dashboard .panel[data-panel="live-news"],
-  .bento-dashboard .panel[data-panel="ai-summary"] {
-    grid-column: span 1;
-    grid-row: span 1;
-    min-height: 160px;
-    border-radius: 14px;
+  .bento-dashboard .bento-card.bento-map {
+    grid-column: 1;
+    height: 300px;
+    min-height: 280px;
+    max-height: 350px;
   }
 
-  .bento-dashboard .panel-header {
-    padding: 12px 14px 10px;
+  .bento-dashboard .panel {
+    grid-column: 1 !important;
+    min-height: auto;
+    max-height: none;
   }
 
+  /* On mobile, show more items since panels are full-width */
   .bento-dashboard .panel-content {
-    padding: 12px 14px;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  /* Limit news items on mobile */
+  .bento-dashboard .news-item:nth-child(n+8) {
+    display: none;
   }
 }
 
-/* ── Map Fullscreen ── */
-.bento-dashboard .bento-map.fullscreen {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 9999 !important;
-  border-radius: 0 !important;
-  min-height: 100vh !important;
-  max-height: 100vh !important;
-  animation: bento-fullscreen-in 0.3s ease;
+/* ══════════════════════════════════════════════════════════════════════════
+   THREAT/STATUS INDICATORS
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .threat-badge,
+.bento-dashboard .status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: var(--bento-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
-.bento-dashboard .bento-map.fullscreen .map-container {
-  border-radius: 0 !important;
+.bento-dashboard .threat-badge.critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--bento-red);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* ── Search FAB repositioned ── */
-.bento-dashboard .search-mobile-fab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
+.bento-dashboard .threat-badge.high {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.bento-dashboard .threat-badge.medium {
+  background: rgba(234, 179, 8, 0.12);
+  color: var(--bento-yellow);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+.bento-dashboard .threat-badge.low {
+  background: var(--bento-accent-subtle);
+  color: var(--bento-accent);
+  border: 1px solid var(--bento-border-accent);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TIMESTAMPS
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .timestamp,
+.bento-dashboard .last-updated {
+  font-family: var(--bento-font-mono);
+  font-size: 10px;
+  color: var(--bento-text-muted);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HEADER INTEGRATION
+   ══════════════════════════════════════════════════════════════════════════ */
+body:has(.bento-dashboard) .header {
+  background: var(--bento-bg) !important;
+  border-bottom: 1px solid var(--bento-border) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   INSIGHTS/AI PANEL SPECIFIC STYLES
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="insights"] .insight-item,
+.bento-dashboard .panel[data-panel="strategic-posture"] .posture-item {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(0, 255, 65, 0.03);
+  border: 1px solid var(--bento-border-accent);
+  border-radius: var(--bento-radius-sm);
+}
+
+.bento-dashboard .insight-text,
+.bento-dashboard .posture-text {
+  font-family: var(--bento-font);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--bento-text);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STRATEGIC RISK PANEL
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="strategic-risk"] .risk-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--bento-radius-sm);
+  border-left: 3px solid var(--bento-yellow);
+}
+
+.bento-dashboard .panel[data-panel="strategic-risk"] .risk-item.critical {
+  border-left-color: var(--bento-red);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CASCADE/INFRASTRUCTURE PANEL
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="cascade"] .cascade-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--bento-radius-sm);
+  border-left: 3px solid var(--bento-cyan);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MONITORS PANEL
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="monitors"] .monitor-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--bento-radius-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SECURITY ADVISORIES
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .panel[data-panel="security-advisories"] .advisory-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: rgba(239, 68, 68, 0.03);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: var(--bento-radius-sm);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   APPLE-STYLE REGION SELECTOR - Segmented Control
+   ══════════════════════════════════════════════════════════════════════════ */
+.region-selector-apple {
+  position: relative;
   z-index: 100;
+}
+
+.region-pill-track {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  position: relative;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.region-pill-indicator {
+  position: absolute;
+  height: calc(100% - 6px);
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  top: 3px;
+  left: 3px;
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.region-pill-btn {
+  position: relative;
+  z-index: 1;
+  padding: 5px 12px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--bento-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  border-radius: 7px;
+}
+
+.region-pill-btn:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.region-pill-btn.active {
+  color: #fff;
+}
+
+.region-pill-btn svg {
+  stroke: currentColor;
+  vertical-align: middle;
+}
+
+.region-more-btn {
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.region-more-btn.open {
+  color: var(--bento-accent);
+}
+
+/* Apple-style dropdown */
+.region-dropdown-apple {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  background: rgba(30, 30, 35, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 0.5px rgba(255, 255, 255, 0.08),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.97);
+  transform-origin: top right;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+}
+
+.region-dropdown-apple.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.region-dropdown-header {
+  padding: 10px 14px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.region-dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--bento-font);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.region-dropdown-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.region-dropdown-option:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.region-dropdown-option.active {
+  color: var(--bento-accent);
+}
+
+.region-dropdown-label {
+  flex: 1;
+  text-align: left;
+}
+
+.region-dropdown-check {
+  opacity: 0;
+  stroke: var(--bento-accent);
+  transition: opacity 0.15s ease;
+}
+
+.region-dropdown-option.active .region-dropdown-check {
+  opacity: 1;
+}
+
+.region-dropdown-option:last-child {
+  padding-bottom: 12px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MAP CARD HEADER STYLING
+   ══════════════════════════════════════════════════════════════════════════ */
+.bento-dashboard .bento-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bento-surface-elevated);
+  border-bottom: 1px solid var(--bento-border);
+  flex-shrink: 0;
+}
+
+.bento-dashboard .bento-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--bento-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bento-text);
+}
+
+.bento-dashboard .bento-card-icon {
+  font-size: 14px;
+}
+
+.bento-dashboard .bento-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bento-dashboard .bento-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--bento-surface);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  color: var(--bento-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bento-dashboard .bento-card-action:hover {
+  background: var(--bento-surface-hover);
+  border-color: var(--bento-border-hover);
+  color: var(--bento-text);
+}
+
+/* Map dimension toggle styling */
+.bento-dashboard .map-dimension-toggle {
+  display: flex;
+  background: var(--bento-surface);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  overflow: hidden;
+}
+
+.bento-dashboard .map-dim-btn {
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  color: var(--bento-text-muted);
+  font-family: var(--bento-font);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bento-dashboard .map-dim-btn:hover {
+  color: var(--bento-text-secondary);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.bento-dashboard .map-dim-btn.active {
+  color: var(--bento-accent);
+  background: var(--bento-accent-subtle);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE - Region selector
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .region-selector-apple {
+    display: none;
+  }
+
+  .bento-dashboard .bento-card-actions {
+    gap: 6px;
+  }
+
+  .bento-dashboard .map-dim-btn {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+}
+
+/* Tablet - show compact version */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .region-pill-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .region-dropdown-apple {
+    min-width: 160px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ATLAS PANEL - Multi-Agent Intelligence Analysis
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.atlas-panel {
+  background: var(--bento-surface);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.atlas-header {
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--bento-border);
+}
+
+.atlas-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--bento-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.atlas-logo {
+  font-size: 24px;
+}
+
+.atlas-subtitle {
+  font-size: 11px;
+  color: var(--bento-text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.atlas-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.atlas-select {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--bento-surface-elevated);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
+  color: var(--bento-text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.atlas-select:hover:not(:disabled) {
+  border-color: var(--bento-border-hover);
+}
+
+.atlas-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.atlas-btn {
+  padding: 8px 16px;
+  background: var(--bento-accent);
+  color: #000;
+  border: none;
+  border-radius: var(--bento-radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.atlas-btn:hover:not(:disabled) {
+  background: var(--bento-accent-dim);
+}
+
+.atlas-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.atlas-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: atlas-spin 0.8s linear infinite;
+}
+
+@keyframes atlas-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Agent Status */
+.atlas-agents {
+  background: var(--bento-surface-elevated);
+  border-radius: var(--bento-radius-sm);
+  padding: 12px;
+}
+
+.atlas-agents-title {
+  font-size: 11px;
+  color: var(--bento-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.atlas-agents-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.atlas-agent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--bento-surface);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.atlas-agent-icon {
+  font-size: 10px;
+}
+
+.atlas-agent-name {
+  font-weight: 500;
+  color: var(--bento-text);
+  flex: 1;
+}
+
+.atlas-agent-status {
+  font-size: 11px;
+  font-family: var(--bento-font-mono);
+}
+
+/* Empty State */
+.atlas-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--bento-text-muted);
+}
+
+.atlas-empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.atlas-empty-text {
+  font-size: 13px;
+  max-width: 250px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Results */
+.atlas-results {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.atlas-score-section {
+  display: flex;
+  gap: 12px;
+}
+
+.atlas-score,
+.atlas-cascade-risk {
+  flex: 1;
+  text-align: center;
+  padding: 16px;
+  background: var(--bento-surface-elevated);
+  border-radius: var(--bento-radius-sm);
+  border: 2px solid;
+}
+
+.atlas-score-value,
+.atlas-cascade-value {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--bento-font-mono);
+}
+
+.atlas-score-label,
+.atlas-cascade-label {
+  font-size: 10px;
+  color: var(--bento-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.atlas-summary {
+  font-size: 13px;
+  color: var(--bento-text-secondary);
+  line-height: 1.5;
+  padding: 12px;
+  background: var(--bento-surface-elevated);
+  border-radius: var(--bento-radius-sm);
+  border-left: 3px solid var(--bento-accent);
+}
+
+.atlas-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.atlas-section-title {
+  font-size: 11px;
+  color: var(--bento-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.atlas-key-findings {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.atlas-key-finding {
+  font-size: 12px;
+  color: var(--bento-text);
+  padding: 8px 12px;
+  background: var(--bento-surface-elevated);
+  border-radius: 6px;
+  border-left: 2px solid var(--bento-accent);
+}
+
+/* Correlations */
+.atlas-no-correlations {
+  font-size: 12px;
+  color: var(--bento-text-muted);
+  text-align: center;
+  padding: 16px;
+  background: var(--bento-surface-elevated);
+  border-radius: var(--bento-radius-sm);
+}
+
+.atlas-correlation {
+  padding: 12px;
+  background: var(--bento-surface-elevated);
+  border-radius: var(--bento-radius-sm);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.atlas-correlation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.atlas-correlation-type {
+  font-size: 10px;
+  color: var(--bento-purple);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.atlas-correlation-confidence {
+  font-size: 11px;
+  color: var(--bento-text-muted);
+  font-family: var(--bento-font-mono);
+}
+
+.atlas-correlation-description {
+  font-size: 12px;
+  color: var(--bento-text);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.atlas-correlation-agents {
+  display: flex;
+  gap: 6px;
+}
+
+.atlas-correlation-agent {
+  font-size: 10px;
+  padding: 2px 8px;
+  background: var(--bento-surface);
+  border-radius: 4px;
+  color: var(--bento-text-secondary);
+}
+
+/* Agent Reports */
+.atlas-agent-reports {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.atlas-report {
+  background: var(--bento-surface-elevated);
+  border-radius: var(--bento-radius-sm);
+  overflow: hidden;
+}
+
+.atlas-report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.atlas-report-header:hover {
+  background: var(--bento-surface-hover);
+}
+
+.atlas-report-name {
+  font-weight: 600;
+  color: var(--bento-text);
+}
+
+.atlas-report-severity {
+  font-family: var(--bento-font-mono);
+  font-size: 11px;
+}
+
+.atlas-report-content {
+  padding: 12px;
+  border-top: 1px solid var(--bento-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Findings */
+.atlas-finding {
+  padding: 10px;
+  background: var(--bento-surface);
+  border-radius: 6px;
+}
+
+.atlas-finding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.atlas-finding-category {
+  font-size: 10px;
+  color: var(--bento-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.atlas-finding-severity {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.atlas-finding-summary {
+  font-size: 12px;
+  color: var(--bento-text);
+  line-height: 1.4;
+}
+
+.atlas-finding-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--bento-text-muted);
+}
+
+/* Actions */
+.atlas-actions {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 12px;
+  color: var(--bento-text-secondary);
+}
+
+.atlas-actions li {
+  margin-bottom: 4px;
+}
+
+/* Meta */
+.atlas-meta {
+  font-size: 10px;
+  color: var(--bento-text-muted);
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--bento-border);
+}
+
+/* ATLAS in bento grid */
+.bento-dashboard .bento-card.bento-atlas {
+  grid-column: span 1;
+  min-height: 400px;
+  max-height: 600px;
+  overflow-y: auto;
 }

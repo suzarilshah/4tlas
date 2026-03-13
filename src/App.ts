@@ -254,6 +254,7 @@ export class App {
       cyberThreatsCache: null,
       disabledSources,
       currentTimeRange: '7d',
+      currentRegion: 'global',
       inFlight: new Set(),
       seenGeoAlerts: new Set(),
       monitors,

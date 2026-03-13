@@ -18,7 +18,8 @@ export function rssProxyUrl(feedUrl: string): string {
   if (RSS_PROXY_BASE) {
     return `${RSS_PROXY_BASE}/rss?url=${encodeURIComponent(feedUrl)}`;
   }
-  return `/api/rss-proxy?url=${encodeURIComponent(feedUrl)}`;
+  // Use toRuntimeUrl to prepend Worker base URL on Cloudflare Pages
+  return toRuntimeUrl(`/api/rss-proxy?url=${encodeURIComponent(feedUrl)}`);
 }
 
 type CachedResponsePayload = {
@@ -29,7 +30,7 @@ type CachedResponsePayload = {
   body: string;
 };
 
-// In production browser deployments, routes are handled by Vercel serverless functions.
+// In production browser deployments, routes go to Cloudflare Worker API.
 // In local dev, Vite proxy handles these routes.
 // In Tauri desktop mode, route requests need an absolute remote host.
 export function proxyUrl(localPath: string): string {
@@ -41,7 +42,8 @@ export function proxyUrl(localPath: string): string {
     return localPath;
   }
 
-  return localPath;
+  // Production web: use toRuntimeUrl to prepend Worker base URL
+  return toRuntimeUrl(localPath);
 }
 
 function shouldPersistResponse(url: string): boolean {

@@ -319,6 +319,10 @@ export class EventHandlerManager implements AppModule {
     regionSelect?.addEventListener('change', () => {
       this.ctx.map?.setView(regionSelect.value as MapView);
       trackMapViewChange(regionSelect.value);
+      // Set data-region attribute on body for CSS-based panel visibility
+      document.body.dataset.region = regionSelect.value;
+      // Dispatch region change event for news filtering
+      window.dispatchEvent(new CustomEvent('wm-region-changed', { detail: regionSelect.value }));
     });
 
     this.boundResizeHandler = debounce(() => {
@@ -463,6 +467,10 @@ export class EventHandlerManager implements AppModule {
         if (!region) return;
         this.ctx.map?.setView(region as MapView);
         trackMapViewChange(region);
+        // Set data-region attribute on body for CSS-based panel visibility
+        document.body.dataset.region = region;
+        // Dispatch region change event for news filtering
+        window.dispatchEvent(new CustomEvent('wm-region-changed', { detail: region }));
         const regionSelect = document.getElementById('regionSelect') as HTMLSelectElement;
         if (regionSelect) regionSelect.value = region;
         sheet.querySelectorAll('.region-sheet-option').forEach(o => {
@@ -567,6 +575,10 @@ export class EventHandlerManager implements AppModule {
         const state = this.ctx.map.getState();
         if (regionSelect.value !== state.view) {
           regionSelect.value = state.view;
+          // Set data-region attribute on body for CSS-based panel visibility
+          document.body.dataset.region = state.view;
+          // Dispatch region change event for news filtering
+          window.dispatchEvent(new CustomEvent('wm-region-changed', { detail: state.view }));
         }
       }
     });
@@ -1156,6 +1168,128 @@ export class EventHandlerManager implements AppModule {
 
     this.setupMapFullscreen(mapSection);
     this.setupMapDimensionToggle();
+    this.setupBentoRegionSelector();
+  }
+
+  private setupBentoRegionSelector(): void {
+    const selector = document.getElementById('bentoRegionSelector');
+    const dropdown = document.getElementById('bentoRegionDropdown');
+    const moreBtn = document.getElementById('regionMoreBtn');
+    const indicator = document.getElementById('regionPillIndicator');
+    const pillTrack = selector?.querySelector('.region-pill-track');
+
+    if (!selector || !dropdown || !pillTrack) return;
+
+    // Get all pill buttons for main regions
+    const pillBtns = pillTrack.querySelectorAll<HTMLButtonElement>('.region-pill-btn:not(.region-more-btn)');
+
+    // Calculate and position the pill indicator
+    const updateIndicator = (activeBtn: HTMLButtonElement) => {
+      if (!indicator) return;
+      const trackRect = pillTrack.getBoundingClientRect();
+      const btnRect = activeBtn.getBoundingClientRect();
+      const left = btnRect.left - trackRect.left;
+      indicator.style.width = `${btnRect.width}px`;
+      indicator.style.transform = `translateX(${left - 3}px)`;
+    };
+
+    // Initialize indicator position
+    const initialActive = pillTrack.querySelector<HTMLButtonElement>('.region-pill-btn.active');
+    if (initialActive && indicator) {
+      requestAnimationFrame(() => updateIndicator(initialActive));
+    }
+
+    // Helper to select a region
+    const selectRegion = (region: string, btn: HTMLButtonElement | null, isFromDropdown = false) => {
+      // Update pill buttons active state
+      pillBtns.forEach(b => b.classList.remove('active'));
+      dropdown.querySelectorAll('.region-dropdown-option').forEach(opt => opt.classList.remove('active'));
+
+      if (btn && !isFromDropdown) {
+        btn.classList.add('active');
+        updateIndicator(btn);
+      } else if (isFromDropdown) {
+        // For dropdown selections, hide the indicator by moving it off-screen
+        if (indicator) indicator.style.transform = 'translateX(-100px)';
+        const dropdownOption = dropdown.querySelector(`[data-region="${region}"]`);
+        if (dropdownOption) dropdownOption.classList.add('active');
+      }
+
+      // Close dropdown
+      dropdown.classList.remove('open');
+      moreBtn?.classList.remove('open');
+
+      // Sync with hidden select
+      const regionSelect = document.getElementById('regionSelect') as HTMLSelectElement;
+      if (regionSelect) regionSelect.value = region;
+
+      // Change map view
+      this.ctx.map?.setView(region as MapView);
+      trackMapViewChange(region);
+
+      // Set data-region for CSS panel visibility
+      document.body.dataset.region = region;
+
+      // Dispatch event for news filtering
+      window.dispatchEvent(new CustomEvent('wm-region-changed', { detail: region }));
+    };
+
+    // Handle main pill button clicks
+    pillBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const region = btn.dataset.region;
+        if (!region) return;
+        selectRegion(region, btn, false);
+      });
+    });
+
+    // Handle more button click (toggle dropdown)
+    moreBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('open');
+      moreBtn.classList.toggle('open');
+    });
+
+    // Handle dropdown option clicks
+    dropdown.querySelectorAll<HTMLButtonElement>('.region-dropdown-option').forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const region = option.dataset.region;
+        if (!region) return;
+        selectRegion(region, null, true);
+      });
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener('click', () => {
+      dropdown.classList.remove('open');
+      moreBtn?.classList.remove('open');
+    });
+
+    // Sync on map state changes
+    this.ctx.map?.onStateChanged(() => {
+      const state = this.ctx.map?.getState();
+      if (!state?.view) return;
+
+      const mainRegions = ['global', 'america', 'eu', 'mena', 'asia'];
+      const isMainRegion = mainRegions.includes(state.view);
+
+      pillBtns.forEach(b => b.classList.remove('active'));
+      dropdown.querySelectorAll('.region-dropdown-option').forEach(opt => opt.classList.remove('active'));
+
+      if (isMainRegion) {
+        const btn = pillTrack.querySelector<HTMLButtonElement>(`[data-region="${state.view}"]`);
+        if (btn) {
+          btn.classList.add('active');
+          updateIndicator(btn);
+        }
+      } else {
+        const dropdownOption = dropdown.querySelector(`[data-region="${state.view}"]`);
+        if (dropdownOption) dropdownOption.classList.add('active');
+        if (indicator) indicator.style.transform = 'translateX(-100px)';
+      }
+    });
   }
 
   private setupMapDimensionToggle(): void {

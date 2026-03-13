@@ -230,7 +230,35 @@ export class PanelLayoutManager implements AppModule {
             </div>
             <div class="bento-card-actions">
               <span class="header-clock" id="headerClock" translate="no" style="font-size: 11px; color: var(--text-dim); margin-right: 8px;"></span>
-              <div class="map-dimension-toggle" id="mapDimensionToggle" style="margin-right: 4px;">
+              <div class="region-selector-apple" id="bentoRegionSelector">
+                <div class="region-pill-track">
+                  <div class="region-pill-indicator" id="regionPillIndicator"></div>
+                  ${[
+                    { value: 'global', label: 'All' },
+                    { value: 'america', label: 'US' },
+                    { value: 'eu', label: 'EU' },
+                    { value: 'mena', label: 'MENA' },
+                    { value: 'asia', label: 'Asia' },
+                  ].map((r, i) => `<button class="region-pill-btn${r.value === 'global' ? ' active' : ''}" data-region="${r.value}" data-index="${i}">
+                    ${r.label}
+                  </button>`).join('')}
+                  <button class="region-pill-btn region-more-btn" id="regionMoreBtn" data-index="5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>
+                  </button>
+                </div>
+                <div class="region-dropdown-apple" id="bentoRegionDropdown">
+                  <div class="region-dropdown-header">More Regions</div>
+                  ${[
+                    { value: 'latam', label: 'Latin America' },
+                    { value: 'africa', label: 'Africa' },
+                    { value: 'oceania', label: 'Oceania' },
+                  ].map(r => `<button class="region-dropdown-option" data-region="${r.value}">
+                    <span class="region-dropdown-label">${r.label}</span>
+                    <svg class="region-dropdown-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </button>`).join('')}
+                </div>
+              </div>
+              <div class="map-dimension-toggle" id="mapDimensionToggle">
                 <button class="map-dim-btn${loadFromStorage<string>(STORAGE_KEYS.mapMode, 'flat') === 'globe' ? '' : ' active'}" data-mode="flat" title="2D Map">2D</button>
                 <button class="map-dim-btn${loadFromStorage<string>(STORAGE_KEYS.mapMode, 'flat') === 'globe' ? ' active' : ''}" data-mode="globe" title="3D Globe">3D</button>
               </div>
@@ -722,6 +750,13 @@ export class PanelLayoutManager implements AppModule {
 
     const insightsPanel = new InsightsPanel();
     this.ctx.panels['insights'] = insightsPanel;
+
+    // ATLAS Multi-Agent Intelligence Panel (lazy-loaded)
+    if (SITE_VARIANT !== 'happy') {
+      this.lazyPanel('atlas', () =>
+        import('@/components/AtlasPanelWrapper').then(m => new m.AtlasPanelWrapper()),
+      );
+    }
 
     // Global Giving panel (all variants)
     this.lazyPanel('giving', () =>

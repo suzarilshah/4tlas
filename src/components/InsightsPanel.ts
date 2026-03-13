@@ -14,7 +14,7 @@ import { deletePersistentCache, getPersistentCache, setPersistentCache } from '@
 import { t } from '@/services/i18n';
 import { isDesktopRuntime } from '@/services/runtime';
 import { getAiFlowSettings, isAnyAiProviderEnabled, subscribeAiFlowChange } from '@/services/ai-flow-settings';
-import { getServerInsights, type ServerInsights, type ServerInsightStory } from '@/services/insights-loader';
+import { getServerInsights, getServerInsightsAsync, type ServerInsights, type ServerInsightStory } from '@/services/insights-loader';
 import type { ClusteredEvent, FocalPoint, MilitaryFlight } from '@/types';
 
 export class InsightsPanel extends Panel {
@@ -263,8 +263,15 @@ export class InsightsPanel extends Panel {
       return;
     }
 
-    // Try server-side pre-computed insights first (instant)
-    const serverInsights = getServerInsights();
+    // Try server-side pre-computed insights first (instant from cache/bootstrap)
+    let serverInsights = getServerInsights();
+
+    // If not in cache, try fetching from API (Cloudflare Worker)
+    if (!serverInsights) {
+      this.setProgress(1, 3, 'Fetching server insights...');
+      serverInsights = await getServerInsightsAsync();
+    }
+
     if (serverInsights) {
       await this.updateFromServer(serverInsights, clusters, thisGeneration);
       return;

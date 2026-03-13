@@ -165,6 +165,19 @@ const MAX_CLUSTERS = 200;
 const MAX_PREDICTIONS = 100;
 const MAX_MAP_FLASH_CACHE = 200;
 
+// Region bounding boxes for news filtering [minLat, maxLat, minLon, maxLon]
+type RegionBounds = { minLat: number; maxLat: number; minLon: number; maxLon: number };
+const REGION_BOUNDS: Record<string, RegionBounds> = {
+  global: { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 },
+  america: { minLat: 15, maxLat: 72, minLon: -170, maxLon: -50 },
+  mena: { minLat: 10, maxLat: 45, minLon: -20, maxLon: 75 },
+  eu: { minLat: 35, maxLat: 72, minLon: -25, maxLon: 45 },
+  asia: { minLat: 0, maxLat: 55, minLon: 60, maxLon: 145 },
+  latam: { minLat: -55, maxLat: 35, minLon: -120, maxLon: -30 },
+  africa: { minLat: -35, maxLat: 40, minLon: -20, maxLon: 55 },
+  oceania: { minLat: -50, maxLat: 0, minLon: 100, maxLon: 180 },
+};
+
 export interface DataLoaderCallbacks {
   renderCriticalBanner: (postures: TheaterPostureSummary[]) => void;
   refreshOpenCountryBrief: () => void;
@@ -194,6 +207,7 @@ export class DataLoaderManager implements AppModule {
   }
 
   private boundMarketWatchlistHandler: (() => void) | null = null;
+  private boundRegionChangeHandler: ((e: Event) => void) | null = null;
 
   private digestBreaker = { state: 'closed' as 'closed' | 'open' | 'half-open', failures: 0, cooldownUntil: 0 };
   private readonly digestRequestTimeoutMs = 8000;
@@ -214,6 +228,13 @@ export class DataLoaderManager implements AppModule {
       void this.loadMarkets();
     };
     window.addEventListener('wm-market-watchlist-changed', this.boundMarketWatchlistHandler as EventListener);
+
+    // Listen for region changes to re-filter news
+    this.boundRegionChangeHandler = (e: Event) => {
+      const region = (e as CustomEvent<string>).detail;
+      if (region) this.setRegion(region);
+    };
+    window.addEventListener('wm-region-changed', this.boundRegionChangeHandler as EventListener);
   }
 
   destroy(): void {
@@ -222,6 +243,10 @@ export class DataLoaderManager implements AppModule {
     if (this.boundMarketWatchlistHandler) {
       window.removeEventListener('wm-market-watchlist-changed', this.boundMarketWatchlistHandler as EventListener);
       this.boundMarketWatchlistHandler = null;
+    }
+    if (this.boundRegionChangeHandler) {
+      window.removeEventListener('wm-region-changed', this.boundRegionChangeHandler as EventListener);
+      this.boundRegionChangeHandler = null;
     }
   }
 
@@ -601,6 +626,35 @@ export class DataLoaderManager implements AppModule {
     return labels[range];
   }
 
+  filterItemsByRegion(items: NewsItem[], region: string = this.ctx.currentRegion): NewsItem[] {
+    if (region === 'global') return items;
+    const bounds = REGION_BOUNDS[region];
+    if (!bounds) return items;
+    return items.filter((item) => {
+      // If item has no geo coords, include it (don't filter out non-geo items)
+      if (item.lat == null || item.lon == null) return true;
+      return (
+        item.lat >= bounds.minLat &&
+        item.lat <= bounds.maxLat &&
+        item.lon >= bounds.minLon &&
+        item.lon <= bounds.maxLon
+      );
+    });
+  }
+
+  setRegion(region: string): void {
+    if (this.ctx.currentRegion === region) return;
+    this.ctx.currentRegion = region as import('@/components').MapView;
+    // Re-render all news panels with region filter
+    this.applyRegionFilterToNewsPanels();
+  }
+
+  applyRegionFilterToNewsPanels(): void {
+    Object.entries(this.ctx.newsByCategory).forEach(([category, items]) => {
+      this.renderNewsForCategory(category, items);
+    });
+  }
+
   renderNewsForCategory(category: string, items: NewsItem[]): void {
     if (items.length > MAX_NEWS_PER_CATEGORY) {
       items = items.slice(0, MAX_NEWS_PER_CATEGORY);
@@ -608,9 +662,12 @@ export class DataLoaderManager implements AppModule {
     this.ctx.newsByCategory[category] = items;
     const panel = this.ctx.newsPanels[category];
     if (!panel) return;
-    const filteredItems = this.filterItemsByTimeRange(items);
+    // Apply both time range AND region filters
+    let filteredItems = this.filterItemsByTimeRange(items);
+    filteredItems = this.filterItemsByRegion(filteredItems);
     if (filteredItems.length === 0 && items.length > 0) {
-      panel.renderFilteredEmpty(`No items in ${this.getTimeRangeLabel()}`);
+      const regionLabel = this.ctx.currentRegion === 'global' ? '' : ` in ${this.ctx.currentRegion.toUpperCase()}`;
+      panel.renderFilteredEmpty(`No items in ${this.getTimeRangeLabel()}${regionLabel}`);
       return;
     }
     panel.renderNews(filteredItems);

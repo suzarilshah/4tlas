@@ -2,7 +2,7 @@ import type { NewsItem, Monitor, PanelConfig, MapLayers, InternetOutage, SocialU
 import type { AirportDelayAlert, PositionSample } from '@/services/aviation';
 import type { IranEvent } from '@/generated/client/worldmonitor/conflict/v1/service_client';
 import type { SecurityAdvisory } from '@/services/security-advisories';
-import type { MapContainer, Panel, NewsPanel, SignalModal, StatusPanel, SearchModal } from '@/components';
+import type { MapContainer, Panel, NewsPanel, SignalModal, StatusPanel, SearchModal, MapView } from '@/components';
 import type { IntelligenceGapBadge } from '@/components';
 import type { MarketData, ClusteredEvent } from '@/types';
 import type { PredictionMarket } from '@/services/prediction';
@@ -90,6 +90,7 @@ export interface AppContext {
 
   disabledSources: Set<string>;
   currentTimeRange: TimeRange;
+  currentRegion: MapView;
 
   inFlight: Set<string>;
   seenGeoAlerts: Set<string>;

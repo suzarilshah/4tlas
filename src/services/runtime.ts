@@ -102,8 +102,9 @@ export function getApiBaseUrl(): string {
     // In production web on Cloudflare Pages, use the Worker API
     if (typeof window !== 'undefined') {
       const host = window.location.hostname;
-      // Production: 4tlas.pages.dev or preview deployments
-      if (host === '4tlas.pages.dev' || host.endsWith('.4tlas.pages.dev')) {
+      // Production: 4tlas.pages.dev, worldmonitor-ag4.pages.dev, or preview deployments
+      if (host === '4tlas.pages.dev' || host.endsWith('.4tlas.pages.dev') ||
+          host.endsWith('.worldmonitor-ag4.pages.dev')) {
         return 'https://4tlas-api.worldmonitor.workers.dev';
       }
     }
