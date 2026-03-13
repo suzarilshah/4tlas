@@ -36,12 +36,14 @@ const BOT_UA = /bot|crawl|spider|slurp|archiver|wget|curl\/|python-requests|scra
 
 // CORS headers
 function corsHeaders(origin: string | null): HeadersInit {
-  // Allow 4tlas.pages.dev, worldmonitor-ag4.pages.dev, and all deployment preview URLs
+  // Allow Cloudflare Pages, Vercel, and localhost
   const isAllowed = origin && (
     origin === 'https://4tlas.pages.dev' ||
     origin.endsWith('.4tlas.pages.dev') ||
     origin === 'https://worldmonitor-ag4.pages.dev' ||
     origin.endsWith('.worldmonitor-ag4.pages.dev') ||
+    origin.endsWith('.vercel.app') ||
+    origin === 'https://insanprihatin-lovat.vercel.app' ||
     origin === 'http://localhost:5173' ||
     origin === 'http://localhost:4173'
   );

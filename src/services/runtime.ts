@@ -99,12 +99,13 @@ export function isDesktopRuntime(): boolean {
 
 export function getApiBaseUrl(): string {
   if (!isDesktopRuntime()) {
-    // In production web on Cloudflare Pages, use the Worker API
+    // In production web on Cloudflare Pages or Vercel, use the Worker API
     if (typeof window !== 'undefined') {
       const host = window.location.hostname;
-      // Production: 4tlas.pages.dev, worldmonitor-ag4.pages.dev, or preview deployments
+      // Production: Cloudflare Pages, Vercel, or preview deployments
       if (host === '4tlas.pages.dev' || host.endsWith('.4tlas.pages.dev') ||
-          host.endsWith('.worldmonitor-ag4.pages.dev')) {
+          host.endsWith('.worldmonitor-ag4.pages.dev') ||
+          host.endsWith('.vercel.app') || host === 'insanprihatin-lovat.vercel.app') {
         return 'https://4tlas-api.worldmonitor.workers.dev';
       }
     }
