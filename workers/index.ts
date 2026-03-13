@@ -117,14 +117,278 @@ const REGION_DATA: Record<string, { name: string; countries: string[] }> = {
   'americas': { name: 'Americas', countries: ['USA', 'Canada', 'Mexico', 'Brazil', 'Argentina', 'Colombia', 'Venezuela'] },
 };
 
+// ============================================================================
+// AZURE GPT-5.4 API CALLS FOR ATLAS AGENTS
+// ============================================================================
+
+interface AzureChatMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+interface AzureChatResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
+async function callAzureGPT(
+  env: Env,
+  messages: AzureChatMessage[],
+  temperature = 0.7
+): Promise<string> {
+  const response = await fetch(env.AZURE_AI_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': env.AZURE_AI_KEY,
+    },
+    body: JSON.stringify({
+      messages,
+      temperature,
+      max_completion_tokens: 2000,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Azure GPT API error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json() as AzureChatResponse;
+  return data.choices[0]?.message?.content || '';
+}
+
+interface AgentFindingParsed {
+  category: string;
+  severity: number;
+  summary: string;
+  details: string;
+  source: string;
+}
+
+function parseAgentFindings(content: string): AgentFindingParsed[] {
+  const findings: AgentFindingParsed[] = [];
+
+  // Try to parse JSON array from response
+  const jsonMatch = content.match(/\[[\s\S]*\]/);
+  if (jsonMatch) {
+    try {
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (Array.isArray(parsed)) {
+        for (const item of parsed) {
+          findings.push({
+            category: item.category || 'general',
+            severity: Math.min(10, Math.max(1, Number(item.severity) || 5)),
+            summary: item.summary || item.title || 'No summary',
+            details: item.details || item.description || '',
+            source: item.source || 'AI Analysis',
+          });
+        }
+        return findings;
+      }
+    } catch {
+      // Fall through to text parsing
+    }
+  }
+
+  // Fallback: parse numbered list format
+  const lines = content.split('\n');
+  let currentFinding: Partial<AgentFindingParsed> = {};
+
+  for (const line of lines) {
+    const severityMatch = line.match(/severity[:\s]*(\d+)/i);
+    const categoryMatch = line.match(/category[:\s]*([a-z_]+)/i);
+    const summaryMatch = line.match(/^[\d\.\-\*]+\s*(.+)/);
+
+    if (severityMatch) currentFinding.severity = Number(severityMatch[1]);
+    if (categoryMatch) currentFinding.category = categoryMatch[1];
+    if (summaryMatch && !currentFinding.summary) {
+      currentFinding.summary = summaryMatch[1].substring(0, 200);
+    }
+
+    if (currentFinding.summary && line.trim() === '') {
+      findings.push({
+        category: currentFinding.category || 'general',
+        severity: currentFinding.severity || 5,
+        summary: currentFinding.summary,
+        details: currentFinding.details || '',
+        source: 'AI Analysis',
+      });
+      currentFinding = {};
+    }
+  }
+
+  // Add last finding if exists
+  if (currentFinding.summary) {
+    findings.push({
+      category: currentFinding.category || 'general',
+      severity: currentFinding.severity || 5,
+      summary: currentFinding.summary,
+      details: currentFinding.details || '',
+      source: 'AI Analysis',
+    });
+  }
+
+  return findings.length > 0 ? findings : [{
+    category: 'analysis',
+    severity: 5,
+    summary: content.substring(0, 200),
+    details: content,
+    source: 'AI Analysis',
+  }];
+}
+
+async function runGeoIntAgent(
+  region: string,
+  regionInfo: { name: string },
+  env: Env
+): Promise<AtlasAgentReport> {
+  const startTime = Date.now();
+
+  const systemPrompt = `You are GeoInt, a Geopolitical Intelligence AI agent for the ATLAS threat analysis system.
+Your role: Analyze conflicts, protests, political instability, and breaking news for the ${regionInfo.name} region.
+Countries: ${REGION_DATA[region]?.countries.join(', ')}
+
+Respond with a JSON array of 2-4 findings. Each finding must have:
+- category: one of "armed_conflict", "protest", "political_crisis", "border_tension", "terrorism", "civil_unrest"
+- severity: 1-10 (10 = critical)
+- summary: one sentence (max 100 chars)
+- details: 1-2 sentences with specifics
+- source: "ACLED", "UCDP", "OSINT", or "News Analysis"
+
+Focus on events from the last 7 days. Be specific about locations and actors.`;
+
+  const userPrompt = `Analyze current geopolitical situation in ${regionInfo.name}. What are the most significant conflicts, protests, or political developments right now? Return JSON array format.`;
+
+  try {
+    const response = await callAzureGPT(env, [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ]);
+
+    const findings = parseAgentFindings(response);
+
+    return {
+      agentName: 'GeoInt',
+      findings: findings.map(f => ({
+        ...f,
+        timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString(),
+      })),
+      overallSeverity: findings.reduce((sum, f) => sum + f.severity, 0) / Math.max(1, findings.length),
+      toolsCalled: ['azure_gpt5.4_geoint_analysis'],
+      rawAnalysis: response,
+      executionTimeMs: Date.now() - startTime,
+    };
+  } catch (error) {
+    throw new Error(`GeoInt agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+async function runFinIntAgent(
+  region: string,
+  regionInfo: { name: string },
+  env: Env
+): Promise<AtlasAgentReport> {
+  const startTime = Date.now();
+
+  const systemPrompt = `You are FinInt, a Financial Intelligence AI agent for the ATLAS threat analysis system.
+Your role: Analyze market conditions, commodity prices, currency stress, and economic indicators for the ${regionInfo.name} region.
+Countries: ${REGION_DATA[region]?.countries.join(', ')}
+
+Respond with a JSON array of 2-4 findings. Each finding must have:
+- category: one of "commodity", "currency", "equity", "bonds", "inflation", "sanctions", "trade_disruption"
+- severity: 1-10 (10 = critical)
+- summary: one sentence (max 100 chars)
+- details: 1-2 sentences with specifics (include % changes where relevant)
+- source: "Market Data", "Forex", "Central Bank", or "Trade Analysis"
+
+Focus on significant market movements or economic stress signals.`;
+
+  const userPrompt = `Analyze current financial and economic conditions affecting ${regionInfo.name}. What market signals, commodity price movements, or economic stress indicators are notable? Return JSON array format.`;
+
+  try {
+    const response = await callAzureGPT(env, [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ]);
+
+    const findings = parseAgentFindings(response);
+
+    return {
+      agentName: 'FinInt',
+      findings: findings.map(f => ({
+        ...f,
+        timestamp: new Date().toISOString(),
+      })),
+      overallSeverity: findings.reduce((sum, f) => sum + f.severity, 0) / Math.max(1, findings.length),
+      toolsCalled: ['azure_gpt5.4_finint_analysis'],
+      rawAnalysis: response,
+      executionTimeMs: Date.now() - startTime,
+    };
+  } catch (error) {
+    throw new Error(`FinInt agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+async function runThreatIntAgent(
+  region: string,
+  regionInfo: { name: string },
+  env: Env
+): Promise<AtlasAgentReport> {
+  const startTime = Date.now();
+
+  const systemPrompt = `You are ThreatInt, a Threat Intelligence AI agent for the ATLAS threat analysis system.
+Your role: Analyze cyber threats, natural disasters, infrastructure issues, and military activity for the ${regionInfo.name} region.
+Countries: ${REGION_DATA[region]?.countries.join(', ')}
+
+Respond with a JSON array of 2-4 findings. Each finding must have:
+- category: one of "apt_activity", "cyber_attack", "infrastructure", "natural_disaster", "military_activity", "gps_jamming"
+- severity: 1-10 (10 = critical)
+- summary: one sentence (max 100 chars)
+- details: 1-2 sentences with specifics
+- source: "Threat Intel", "CERT", "USGS", "ADS-B", or "Infrastructure Monitor"
+
+Focus on active threats and unusual patterns.`;
+
+  const userPrompt = `Analyze current threat landscape for ${regionInfo.name}. What cyber threats, natural disasters, infrastructure issues, or military movements are significant? Return JSON array format.`;
+
+  try {
+    const response = await callAzureGPT(env, [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ]);
+
+    const findings = parseAgentFindings(response);
+
+    return {
+      agentName: 'ThreatInt',
+      findings: findings.map(f => ({
+        ...f,
+        timestamp: new Date(Date.now() - Math.random() * 43200000).toISOString(),
+      })),
+      overallSeverity: findings.reduce((sum, f) => sum + f.severity, 0) / Math.max(1, findings.length),
+      toolsCalled: ['azure_gpt5.4_threatint_analysis'],
+      rawAnalysis: response,
+      executionTimeMs: Date.now() - startTime,
+    };
+  } catch (error) {
+    throw new Error(`ThreatInt agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
 async function generateAtlasAnalysis(region: string, env: Env): Promise<AtlasAnalysisResult> {
   const startTime = Date.now();
   const regionInfo = REGION_DATA[region] || REGION_DATA['middle-east'];
 
-  // Generate mock agent reports based on region
-  const geoIntReport = await generateGeoIntReport(region, regionInfo);
-  const finIntReport = await generateFinIntReport(region, regionInfo);
-  const threatIntReport = await generateThreatIntReport(region, regionInfo);
+  // Run all 3 agents in parallel using Azure GPT-5.4
+  const [geoIntReport, finIntReport, threatIntReport] = await Promise.all([
+    runGeoIntAgent(region, regionInfo, env),
+    runFinIntAgent(region, regionInfo, env),
+    runThreatIntAgent(region, regionInfo, env),
+  ]);
 
   const agentReports = [geoIntReport, finIntReport, threatIntReport];
 
@@ -186,190 +450,6 @@ async function generateAtlasAnalysis(region: string, env: Env): Promise<AtlasAna
     totalExecutionTimeMs: Date.now() - startTime,
   };
 }
-
-async function generateGeoIntReport(region: string, regionInfo: { name: string }): Promise<AtlasAgentReport> {
-  const findings = [];
-
-  if (region === 'middle-east') {
-    findings.push(
-      {
-        category: 'armed_conflict',
-        severity: 8,
-        summary: 'Escalating border tensions in northern region',
-        details: '3 incidents reported along disputed border, including artillery exchanges',
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        source: 'ACLED',
-      },
-      {
-        category: 'protest',
-        severity: 6,
-        summary: 'Large-scale protests in Beirut over economic conditions',
-        details: 'Estimated 15,000 protesters, some clashes with security forces',
-        timestamp: new Date(Date.now() - 7200000).toISOString(),
-        source: 'ACLED',
-      }
-    );
-  } else if (region === 'europe') {
-    findings.push({
-      category: 'armed_conflict',
-      severity: 9,
-      summary: 'Continued military operations in eastern Ukraine',
-      details: 'Heavy fighting reported near multiple frontline positions',
-      timestamp: new Date(Date.now() - 1800000).toISOString(),
-      source: 'UCDP',
-    });
-  } else if (region === 'asia-pacific') {
-    findings.push({
-      category: 'military_posturing',
-      severity: 7,
-      summary: 'Increased naval activity in South China Sea',
-      details: 'Multiple carrier groups conducting exercises in disputed waters',
-      timestamp: new Date(Date.now() - 5400000).toISOString(),
-      source: 'OSINT',
-    });
-  } else {
-    findings.push({
-      category: 'general',
-      severity: 4,
-      summary: `Regional tensions remain at baseline levels in ${regionInfo.name}`,
-      details: 'No significant escalation detected',
-      timestamp: new Date().toISOString(),
-      source: 'Analysis',
-    });
-  }
-
-  return {
-    agentName: 'GeoInt',
-    findings,
-    overallSeverity: findings.reduce((s, f) => s + f.severity, 0) / findings.length,
-    toolsCalled: ['get_conflict_events', 'get_breaking_news', 'get_protest_activity'],
-    rawAnalysis: `GeoInt analysis for ${regionInfo.name}: ${findings.length} events detected.`,
-    executionTimeMs: 850 + Math.random() * 200,
-  };
-}
-
-async function generateFinIntReport(region: string, regionInfo: { name: string }): Promise<AtlasAgentReport> {
-  const findings = [];
-
-  if (region === 'middle-east') {
-    findings.push(
-      {
-        category: 'commodity',
-        severity: 7,
-        summary: 'Brent crude up 8% this week',
-        details: 'Oil prices surging on supply concerns and regional tensions',
-        timestamp: new Date().toISOString(),
-        source: 'Market Data',
-      },
-      {
-        category: 'currency',
-        severity: 6,
-        summary: 'Lebanese Pound weakness continues',
-        details: 'LBP down 3% against USD, parallel market rate widening',
-        timestamp: new Date().toISOString(),
-        source: 'Forex',
-      }
-    );
-  } else if (region === 'asia-pacific') {
-    findings.push({
-      category: 'equity',
-      severity: 5,
-      summary: 'Taiwan semiconductor stocks volatile',
-      details: 'TSMC down 4% on geopolitical concerns',
-      timestamp: new Date().toISOString(),
-      source: 'Market Data',
-    });
-  } else if (region === 'europe') {
-    findings.push({
-      category: 'commodity',
-      severity: 6,
-      summary: 'European natural gas prices elevated',
-      details: 'TTF gas futures up 12% on supply uncertainty',
-      timestamp: new Date().toISOString(),
-      source: 'Market Data',
-    });
-  } else {
-    findings.push({
-      category: 'general',
-      severity: 3,
-      summary: `Markets stable in ${regionInfo.name}`,
-      details: 'No significant volatility detected',
-      timestamp: new Date().toISOString(),
-      source: 'Analysis',
-    });
-  }
-
-  return {
-    agentName: 'FinInt',
-    findings,
-    overallSeverity: findings.reduce((s, f) => s + f.severity, 0) / findings.length,
-    toolsCalled: ['get_market_indicators', 'get_commodity_prices', 'get_economic_stress_indicators'],
-    rawAnalysis: `FinInt analysis for ${regionInfo.name}: ${findings.length} market signals detected.`,
-    executionTimeMs: 650 + Math.random() * 150,
-  };
-}
-
-async function generateThreatIntReport(region: string, regionInfo: { name: string }): Promise<AtlasAgentReport> {
-  const findings = [];
-
-  if (region === 'middle-east') {
-    findings.push({
-      category: 'apt_activity',
-      severity: 7,
-      summary: 'Increased scanning against energy infrastructure',
-      details: 'APT33-attributed scanning detected targeting SCADA systems',
-      timestamp: new Date(Date.now() - 43200000).toISOString(),
-      source: 'Threat Intel',
-    });
-  } else if (region === 'europe') {
-    findings.push({
-      category: 'cyber_attack',
-      severity: 6,
-      summary: 'DDoS attacks on government websites',
-      details: 'Multiple EU member state government portals targeted',
-      timestamp: new Date(Date.now() - 21600000).toISOString(),
-      source: 'CERT',
-    });
-  } else if (region === 'asia-pacific') {
-    findings.push(
-      {
-        category: 'military_activity',
-        severity: 6,
-        summary: 'Unusual military flight patterns detected',
-        details: 'Increased reconnaissance flights near disputed areas',
-        timestamp: new Date(Date.now() - 10800000).toISOString(),
-        source: 'ADS-B',
-      },
-      {
-        category: 'natural',
-        severity: 4,
-        summary: 'Tropical storm forming in Western Pacific',
-        details: 'Potential to strengthen, Philippines on alert',
-        timestamp: new Date().toISOString(),
-        source: 'NOAA',
-      }
-    );
-  } else {
-    findings.push({
-      category: 'general',
-      severity: 3,
-      summary: `Threat landscape normal in ${regionInfo.name}`,
-      details: 'No significant cyber or physical threats detected',
-      timestamp: new Date().toISOString(),
-      source: 'Analysis',
-    });
-  }
-
-  return {
-    agentName: 'ThreatInt',
-    findings,
-    overallSeverity: findings.reduce((s, f) => s + f.severity, 0) / findings.length,
-    toolsCalled: ['get_cyber_threats', 'get_natural_disasters', 'get_infrastructure_status', 'get_military_activity'],
-    rawAnalysis: `ThreatInt analysis for ${regionInfo.name}: ${findings.length} threat indicators detected.`,
-    executionTimeMs: 920 + Math.random() * 180,
-  };
-}
-
 function correlateAgentFindings(reports: AtlasAgentReport[]) {
   const patterns: Array<{
     type: string;
