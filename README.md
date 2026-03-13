@@ -50,6 +50,44 @@ The codebase supports multiple variants (Tech, Finance, Commodity, Happy) — sw
 
 ---
 
+## What's New in This Fork
+
+This fork adds significant new capabilities on top of the original World Monitor project:
+
+### ATLAS Multi-Agent Intelligence System
+
+A complete autonomous threat analysis system built from scratch:
+
+| Component | Description |
+|-----------|-------------|
+| **Multi-Agent Orchestrator** | Coordinates 3 specialized AI agents (GeoInt, FinInt, ThreatInt) running in parallel |
+| **Azure AI Foundry Integration** | LLM-powered analysis with flexible provider configuration |
+| **Cross-Domain Correlator** | Identifies cascading threat patterns across intelligence domains |
+| **Real-Time UI Panel** | Live agent status, threat scoring (0-100), and actionable recommendations |
+
+**Agent Capabilities:**
+- **GeoInt** — Conflict events, protest activity, breaking geopolitical news
+- **FinInt** — Market indicators, commodity prices, economic stress signals
+- **ThreatInt** — Cyber threats, natural disasters, infrastructure status, military activity
+
+### Infrastructure Migration
+
+- **Cloudflare Workers** — Edge-deployed API with global distribution
+- **Cloudflare Pages** — Fast static site hosting with preview deployments
+- **Heroku Relay** — WebSocket gateway for persistent connections (AIS, OpenSky, Telegram)
+- **Upstash Redis** — Rate limiting and intelligent caching
+
+### Premium UI Redesign
+
+- **Apple-Style Bento Dashboard** — Modern dark-mode grid layout with OSINT aesthetic
+- **Enlarged Map View** — 2x2 grid span for the primary visualization
+- **Consolidated Intel Panels** — 4 panels merged into single tabbed interface
+- **SF Pro Typography** — Premium font system with proper hierarchy
+
+See [CONTRIBUTIONS.md](./CONTRIBUTIONS.md) for detailed documentation of all additions.
+
+---
+
 ## Key Features
 
 ### Maps & Visualization
