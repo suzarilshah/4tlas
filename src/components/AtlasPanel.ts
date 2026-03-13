@@ -63,6 +63,9 @@ interface AtlasRegion {
 
 let currentAnalysis: AtlasAnalysis | null = null;
 let isAnalyzing = false;
+let isLoading = true;
+let loadError: string | null = null;
+let analysisError: string | null = null;
 let activeAgents: Set<string> = new Set();
 let regions: AtlasRegion[] = [];
 let selectedRegion = 'middle-east';
@@ -73,48 +76,85 @@ let atlasEnabled = false;
 // ============================================================================
 
 async function fetchAtlasStatus(): Promise<{ enabled: boolean; agents: string[]; provider: string }> {
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}/api/atlas/status`;
+  console.log('[ATLAS] Fetching status from:', url);
+
   try {
-    const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/atlas/status`);
-    if (!response.ok) throw new Error('Failed to fetch ATLAS status');
-    return response.json();
+    const response = await fetch(url);
+    console.log('[ATLAS] Status response:', response.status, response.statusText);
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('[ATLAS] Status error response:', text);
+      throw new Error(`HTTP ${response.status}: ${text}`);
+    }
+
+    const data = await response.json();
+    console.log('[ATLAS] Status data:', data);
+    return data;
   } catch (error) {
-    console.error('ATLAS status error:', error);
-    return { enabled: true, agents: ['GeoInt', 'FinInt', 'ThreatInt'], provider: 'Demo Mode' };
+    console.error('[ATLAS] Status fetch failed:', error);
+    throw error;
   }
 }
 
 async function fetchAtlasRegions(): Promise<AtlasRegion[]> {
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}/api/atlas/regions`;
+  console.log('[ATLAS] Fetching regions from:', url);
+
   try {
-    const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/atlas/regions`);
-    if (!response.ok) throw new Error('Failed to fetch regions');
+    const response = await fetch(url);
+    console.log('[ATLAS] Regions response:', response.status, response.statusText);
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('[ATLAS] Regions error response:', text);
+      throw new Error(`HTTP ${response.status}: ${text}`);
+    }
+
     const data = await response.json();
+    console.log('[ATLAS] Regions data:', data);
     return data.regions || [];
   } catch (error) {
-    console.error('ATLAS regions error:', error);
-    return [
-      { id: 'middle-east', name: 'Middle East', countries: ['Israel', 'Iran', 'Iraq', 'Syria'] },
-      { id: 'asia-pacific', name: 'Asia Pacific', countries: ['China', 'Japan', 'Taiwan'] },
-      { id: 'europe', name: 'Europe', countries: ['Ukraine', 'Russia', 'Poland'] },
-    ];
+    console.error('[ATLAS] Regions fetch failed:', error);
+    throw error;
   }
 }
 
 async function runAtlasAnalysis(region: string): Promise<AtlasAnalysis> {
   const baseUrl = getApiBaseUrl();
-  const response = await fetch(`${baseUrl}/api/atlas/analyze`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ region }),
-  });
+  const url = `${baseUrl}/api/atlas/analyze`;
+  console.log('[ATLAS] Running analysis for region:', region, 'URL:', url);
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Analysis failed');
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ region }),
+    });
+
+    console.log('[ATLAS] Analysis response:', response.status, response.statusText);
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('[ATLAS] Analysis error response:', text);
+      try {
+        const error = JSON.parse(text);
+        throw new Error(error.message || error.error || `HTTP ${response.status}`);
+      } catch {
+        throw new Error(`HTTP ${response.status}: ${text}`);
+      }
+    }
+
+    const data = await response.json();
+    console.log('[ATLAS] Analysis complete:', { threatScore: data.threatScore, findings: data.keyFindings?.length });
+    return data;
+  } catch (error) {
+    console.error('[ATLAS] Analysis failed:', error);
+    throw error;
   }
-
-  return response.json();
 }
 
 // ============================================================================
@@ -279,6 +319,46 @@ function renderAnalysisResults(): string {
 }
 
 export function renderAtlasPanel(): string {
+  // Show loading state
+  if (isLoading) {
+    return `
+      <div class="atlas-panel" id="atlas-panel">
+        <div class="atlas-header">
+          <div class="atlas-title">
+            <span class="atlas-logo">&#127758;</span>
+            ATLAS
+          </div>
+          <div class="atlas-subtitle">Autonomous Threat & Landscape Analysis System</div>
+        </div>
+        <div class="atlas-loading">
+          <div class="atlas-spinner"></div>
+          <div class="atlas-loading-text">Connecting to ATLAS API...</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Show error state with details
+  if (loadError) {
+    return `
+      <div class="atlas-panel" id="atlas-panel">
+        <div class="atlas-header">
+          <div class="atlas-title">
+            <span class="atlas-logo">&#127758;</span>
+            ATLAS
+          </div>
+          <div class="atlas-subtitle">Autonomous Threat & Landscape Analysis System</div>
+        </div>
+        <div class="atlas-error">
+          <div class="atlas-error-icon">⚠️</div>
+          <div class="atlas-error-title">Connection Issue</div>
+          <div class="atlas-error-message">${loadError}</div>
+          <button id="atlas-retry-btn" class="atlas-btn">Retry Connection</button>
+        </div>
+      </div>
+    `;
+  }
+
   const regionOptions = regions.map(r =>
     `<option value="${r.id}" ${r.id === selectedRegion ? 'selected' : ''}>${r.name}</option>`
   ).join('');
@@ -302,6 +382,13 @@ export function renderAtlasPanel(): string {
         </button>
       </div>
 
+      ${analysisError ? `
+        <div class="atlas-analysis-error">
+          <span class="atlas-error-icon">⚠️</span>
+          <span>${analysisError}</span>
+        </div>
+      ` : ''}
+
       <div class="atlas-agents">
         <div class="atlas-agents-title">Agent Status</div>
         <div class="atlas-agents-grid">
@@ -323,9 +410,11 @@ export function renderAtlasPanel(): string {
 async function handleAnalyze() {
   if (isAnalyzing) return;
 
+  console.log('[ATLAS] Starting analysis for region:', selectedRegion);
   isAnalyzing = true;
   activeAgents.clear();
   currentAnalysis = null;
+  analysisError = null;
   updatePanel();
 
   // Simulate agent activity
@@ -338,8 +427,10 @@ async function handleAnalyze() {
 
   try {
     currentAnalysis = await runAtlasAnalysis(selectedRegion);
+    console.log('[ATLAS] Analysis completed successfully');
   } catch (error) {
-    console.error('ATLAS analysis error:', error);
+    analysisError = error instanceof Error ? error.message : 'Analysis failed';
+    console.error('[ATLAS] Analysis error:', analysisError);
   } finally {
     isAnalyzing = false;
     activeAgents.clear();
@@ -367,22 +458,51 @@ function attachEventListeners() {
       selectedRegion = (e.target as HTMLSelectElement).value;
     });
   }
+
+  // Retry button for connection errors
+  const retryBtn = document.getElementById('atlas-retry-btn');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', async () => {
+      console.log('[ATLAS] Retrying connection...');
+      await initAtlasPanel();
+      updatePanel();
+    });
+  }
 }
 
 export async function initAtlasPanel() {
-  // Fetch initial data
-  const [status, regionData] = await Promise.all([
-    fetchAtlasStatus(),
-    fetchAtlasRegions(),
-  ]);
+  console.log('[ATLAS] Initializing panel...');
+  isLoading = true;
+  loadError = null;
 
-  atlasEnabled = status.enabled;
-  regions = regionData;
+  try {
+    // Fetch initial data
+    const [status, regionData] = await Promise.all([
+      fetchAtlasStatus(),
+      fetchAtlasRegions(),
+    ]);
+
+    atlasEnabled = status.enabled;
+    regions = regionData;
+    isLoading = false;
+
+    console.log('[ATLAS] Panel initialized successfully:', { enabled: atlasEnabled, regions: regions.length, provider: status.provider });
+  } catch (error) {
+    isLoading = false;
+    loadError = error instanceof Error ? error.message : 'Failed to initialize ATLAS';
+    console.error('[ATLAS] Initialization failed:', loadError);
+
+    // Use fallback data so panel still renders
+    atlasEnabled = true;
+    regions = [
+      { id: 'middle-east', name: 'Middle East', countries: ['Israel', 'Iran', 'Iraq', 'Syria'] },
+      { id: 'asia-pacific', name: 'Asia Pacific', countries: ['China', 'Japan', 'Taiwan'] },
+      { id: 'europe', name: 'Europe', countries: ['Ukraine', 'Russia', 'Poland'] },
+    ];
+  }
 
   // Attach initial event listeners
   attachEventListeners();
-
-  console.log('ATLAS Panel initialized:', { enabled: atlasEnabled, regions: regions.length });
 }
 
 // Export for external use
