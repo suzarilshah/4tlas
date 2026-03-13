@@ -10,18 +10,7 @@
 [![Latest release](https://img.shields.io/github/v/release/koala73/worldmonitor?style=flat)](https://github.com/koala73/worldmonitor/releases/latest)
 
 <p align="center">
-  <a href="https://worldmonitor.app"><img src="https://img.shields.io/badge/Web_App-worldmonitor.app-blue?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Web App"></a>&nbsp;
-  <a href="https://tech.worldmonitor.app"><img src="https://img.shields.io/badge/Tech_Variant-tech.worldmonitor.app-0891b2?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Tech Variant"></a>&nbsp;
-  <a href="https://finance.worldmonitor.app"><img src="https://img.shields.io/badge/Finance_Variant-finance.worldmonitor.app-059669?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Finance Variant"></a>&nbsp;
-  <a href="https://commodity.worldmonitor.app"><img src="https://img.shields.io/badge/Commodity_Variant-commodity.worldmonitor.app-b45309?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Commodity Variant"></a>&nbsp;
-  <a href="https://happy.worldmonitor.app"><img src="https://img.shields.io/badge/Happy_Variant-happy.worldmonitor.app-f59e0b?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Happy Variant"></a>
-</p>
-
-<p align="center">
-  <a href="https://worldmonitor.app/api/download?platform=windows-exe"><img src="https://img.shields.io/badge/Download-Windows_(.exe)-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download Windows"></a>&nbsp;
-  <a href="https://worldmonitor.app/api/download?platform=macos-arm64"><img src="https://img.shields.io/badge/Download-macOS_Apple_Silicon-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download macOS ARM"></a>&nbsp;
-  <a href="https://worldmonitor.app/api/download?platform=macos-x64"><img src="https://img.shields.io/badge/Download-macOS_Intel-555555?style=for-the-badge&logo=apple&logoColor=white" alt="Download macOS Intel"></a>&nbsp;
-  <a href="https://worldmonitor.app/api/download?platform=linux-appimage"><img src="https://img.shields.io/badge/Download-Linux_(.AppImage)-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Download Linux"></a>
+  <a href="https://4tlas.pages.dev"><img src="https://img.shields.io/badge/Web_App-4tlas.pages.dev-blue?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Web App"></a>
 </p>
 
 <p align="center">
@@ -52,17 +41,13 @@
 
 ---
 
-## Live Demos
+## Live Demo
 
 | Variant             | URL                                                          | Focus                                            |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------ |
-| **World Monitor**   | [worldmonitor.app](https://worldmonitor.app)                 | Geopolitics, military, conflicts, infrastructure |
-| **Tech Monitor**    | [tech.worldmonitor.app](https://tech.worldmonitor.app)       | Startups, AI/ML, cloud, cybersecurity            |
-| **Finance Monitor** | [finance.worldmonitor.app](https://finance.worldmonitor.app) | Global markets, trading, central banks, Gulf FDI |
-| **Commodity Monitor** | [commodity.worldmonitor.app](https://commodity.worldmonitor.app) | Mining, metals, energy commodities, critical minerals |
-| **Happy Monitor**   | [happy.worldmonitor.app](https://happy.worldmonitor.app)     | Good news, positive trends, uplifting stories    |
+| **World Monitor**   | [4tlas.pages.dev](https://4tlas.pages.dev)                   | Geopolitics, military, conflicts, infrastructure |
 
-All five variants run from a single codebase — switch between them with one click via the header bar.
+The codebase supports multiple variants (Tech, Finance, Commodity, Happy) — switch between them via the header bar or build with different `VITE_VARIANT` values.
 
 ---
 
@@ -204,62 +189,47 @@ All five variants run from a single codebase — switch between them with one cl
 
 **Vanilla TypeScript** — no framework, direct DOM manipulation, custom Panel/VirtualList classes. The entire app shell weighs less than React's runtime. [Details →](./docs/ARCHITECTURE.md)
 
-**Proto-first APIs** — 22 typed service domains with auto-generated clients, servers, and OpenAPI docs. [Details →](./docs/ARCHITECTURE.md#proto-first-api-contracts)
+**Cloudflare Workers API** — single Worker handles all API endpoints with KV caching, deployed to the edge globally.
 
-**Edge functions** — 60+ Vercel Edge Functions split into per-domain thin entry points (~85% cold-start reduction). [Details →](./docs/ARCHITECTURE.md#edge-functions--deployment)
+**Cloudflare Pages** — frontend deployed to Pages with automatic preview deployments for PRs.
 
-**3-tier caching** — in-memory → Redis → upstream with cache stampede prevention and stale-on-error fallback. [Details →](./docs/ARCHITECTURE.md#bandwidth--caching)
+**Heroku Relay** — WebSocket relay for AIS vessel tracking, OpenSky flights, Telegram OSINT, and OREF alerts.
 
-**Bootstrap hydration** — 15 Redis keys pre-fetched in a single pipeline call for sub-second first render. [Details →](./docs/ARCHITECTURE.md#bootstrap-hydration)
+**3-tier caching** — in-memory → KV/Redis → upstream with cache stampede prevention and stale-on-error fallback.
 
-**SmartPollLoop** — adaptive refresh with exponential backoff, hidden-tab throttle, and circuit breaker integration. [Details →](./docs/ARCHITECTURE.md#smartpollloop--adaptive-data-refresh)
+**SmartPollLoop** — adaptive refresh with exponential backoff, hidden-tab throttle, and circuit breaker integration.
 
 ---
 
 ## Multi-Variant Architecture
 
-A single codebase produces five specialized dashboards, each with distinct feeds, panels, map layers, and branding:
+A single codebase produces multiple specialized dashboards, each with distinct feeds, panels, map layers, and branding:
 
-| Aspect                | World Monitor                                        | Tech Monitor                                    | Finance Monitor                                  | Commodity Monitor                                         | Happy Monitor                                         |
-| --------------------- | ---------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------- |
-| **Domain**            | worldmonitor.app                                     | tech.worldmonitor.app                           | finance.worldmonitor.app                         | commodity.worldmonitor.app                                | happy.worldmonitor.app                                |
-| **Focus**             | Geopolitics, military, conflicts                     | AI/ML, startups, cybersecurity                  | Markets, trading, central banks                  | Mining, metals, energy commodities, critical minerals     | Good news, conservation, human progress               |
-| **RSS Feeds**         | 15 categories, 200+ feeds (politics, MENA, Africa, think tanks) | 21 categories, 152 feeds (AI, VC blogs, startups, GitHub) | 14 categories, 55 feeds (forex, bonds, commodities, IPOs) | 10 categories, 50+ feeds (gold/silver, energy, mining, critical minerals, base metals) | 5 categories, 21 positive-news sources (GNN, Positive.News, Upworthy) |
-| **Panels**            | 45 (strategic posture, CII, cascade, trade policy, airline intel, predictions) | 28 (AI labs, unicorns, accelerators, tech readiness) | 27 (forex, bonds, derivatives, trade policy, gulf economies) | 16 (live prices, sector heatmap, gold/silver, energy, mining, critical minerals, base metals, supply chain) | 10 (good news, breakthroughs, conservation, renewables, giving) |
-| **Unique Map Layers** | Military bases, nuclear facilities, hotspots         | Tech HQs, cloud regions, startup hubs           | Stock exchanges, central banks, Gulf investments | Mine sites, processing plants, commodity ports, commodity hubs, pipelines, trade routes | Positive events, kindness, species recovery, renewables |
-| **Desktop App**       | World Monitor.app / .exe / .AppImage                 | Tech Monitor.app / .exe / .AppImage             | Finance Monitor.app / .exe / .AppImage           | (web-only)                                                | (web-only)                                            |
+| Aspect                | World Monitor                                        | Tech Monitor                                    | Finance Monitor                                  |
+| --------------------- | ---------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------ |
+| **Focus**             | Geopolitics, military, conflicts                     | AI/ML, startups, cybersecurity                  | Markets, trading, central banks                  |
+| **RSS Feeds**         | 15 categories, 200+ feeds (politics, MENA, Africa, think tanks) | 21 categories, 152 feeds (AI, VC blogs, startups, GitHub) | 14 categories, 55 feeds (forex, bonds, commodities, IPOs) |
+| **Panels**            | 45 (strategic posture, CII, cascade, trade policy, airline intel, predictions) | 28 (AI labs, unicorns, accelerators, tech readiness) | 27 (forex, bonds, derivatives, trade policy, gulf economies) |
+| **Unique Map Layers** | Military bases, nuclear facilities, hotspots         | Tech HQs, cloud regions, startup hubs           | Stock exchanges, central banks, Gulf investments |
+| **Desktop App**       | World Monitor.app / .exe / .AppImage                 | Tech Monitor.app / .exe / .AppImage             | Finance Monitor.app / .exe / .AppImage           |
 
-Single-deployment consolidation — all five variants serve from one Vercel deployment, determined by hostname. Build-time `VITE_VARIANT` tree-shakes unused data. Runtime variant selector in the header bar.
+Build-time `VITE_VARIANT` tree-shakes unused data. Runtime variant selector in the header bar.
 
 ---
 
 ## Programmatic API Access
 
-Every data endpoint is accessible programmatically via `api.worldmonitor.app`. The API uses the same edge functions that power the dashboard, with the same caching and rate limiting:
+The API is served via Cloudflare Workers at `4tlas-api.worldmonitor.workers.dev`:
 
 ```bash
-# Fetch market quotes
-curl -s 'https://api.worldmonitor.app/api/market/v1/list-market-quotes?symbols=AAPL,MSFT,GOOGL'
-
-# Get airport delays
-curl -s 'https://api.worldmonitor.app/api/aviation/v1/list-airport-delays'
-
-# Fetch climate anomalies
-curl -s 'https://api.worldmonitor.app/api/climate/v1/list-climate-anomalies'
+# Bootstrap data (news, markets, alerts)
+curl -s 'https://4tlas-api.worldmonitor.workers.dev/api/bootstrap'
 
 # Get earthquake data
-curl -s 'https://api.worldmonitor.app/api/seismology/v1/list-earthquakes'
-
-# Company enrichment (GitHub, SEC filings, HN mentions)
-curl -s 'https://api.worldmonitor.app/api/enrichment/company?domain=stripe.com'
-
-# Company signal discovery (funding, hiring, exec changes)
-curl -s 'https://api.worldmonitor.app/api/enrichment/signals?company=Stripe&domain=stripe.com'
+curl -s 'https://4tlas-api.worldmonitor.workers.dev/api/seismology/v1/list-earthquakes'
 ```
 
-All 22 service domains are available as REST endpoints following the pattern `POST /api/{domain}/v1/{rpc-name}`. GET requests with query parameters are supported for read-only RPCs. Responses include `X-Cache` headers (`HIT`, `REDIS-HIT`, `MISS`) for cache debugging and `Cache-Control` headers for CDN integration.
-
-> **Note**: Use `api.worldmonitor.app`, not `worldmonitor.app` — the main domain requires browser origin headers and returns 403 for programmatic access.
+Responses include `X-Cache` headers (`HIT`, `MISS`) for cache debugging and `Cache-Control` headers for CDN integration.
 
 ---
 
@@ -267,10 +237,10 @@ All 22 service domains are available as REST endpoints following the pattern `PO
 
 | Layer                          | Mechanism                                                                                                                                                                                                                                          |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **CORS origin allowlist**      | Only `worldmonitor.app`, `tech.worldmonitor.app`, `finance.worldmonitor.app`, and `localhost:*` can call API endpoints. All others receive 403. Implemented in `api/_cors.js`.                                                                     |
+| **CORS origin allowlist**      | Only `4tlas.pages.dev`, `*.pages.dev` preview deployments, and `localhost:*` can call API endpoints. All others receive 403. Implemented in `workers/index.ts`.                                                                                    |
 | **RSS domain allowlist**       | The RSS proxy only fetches from explicitly listed domains (~90+). Requests for unlisted domains are rejected with 403.                                                                                                                             |
-| **Railway domain allowlist**   | The Railway relay has a separate, smaller domain allowlist for feeds that need the alternate origin.                                                                                                                                               |
-| **API key isolation**          | All API keys live server-side in Vercel environment variables. The browser never sees Groq, OpenRouter, ACLED, Finnhub, or other credentials.                                                                                                      |
+| **Heroku relay allowlist**     | The Heroku relay has a separate domain allowlist for feeds that need the alternate origin.                                                                                                                                                         |
+| **API key isolation**          | All API keys live server-side in environment variables (Cloudflare or Vercel). The browser never sees Groq, OpenRouter, ACLED, Finnhub, or other credentials.                                                                                      |
 | **Input sanitization**         | User-facing content passes through `escapeHtml()` (prevents XSS) and `sanitizeUrl()` (blocks `javascript:` and `data:` URIs). URLs use `escapeAttr()` for attribute context encoding.                                                              |
 | **Query parameter validation** | API endpoints validate input formats (e.g., stablecoin coin IDs must match `[a-z0-9-]+`, bounding box params are numeric).                                                                                                                         |
 | **IP rate limiting**           | AI endpoints use Upstash Redis-backed rate limiting to prevent abuse of Groq/OpenRouter quotas.                                                                                                                                                    |
@@ -310,12 +280,12 @@ The test suite includes **30 test files** with **554 individual test cases** acr
 git clone https://github.com/koala73/worldmonitor.git
 cd worldmonitor
 npm install
-vercel dev       # Runs frontend + all 60+ API edge functions
+npm run dev      # Starts Vite dev server
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:5173](http://localhost:5173)
 
-> **Note**: `vercel dev` requires the [Vercel CLI](https://vercel.com/docs/cli) (`npm i -g vercel`). If you use `npm run dev` instead, only the frontend starts — news feeds and API-dependent panels won't load. See [Self-Hosting](#self-hosting) for details.
+The frontend connects to the production Cloudflare Worker API (`4tlas-api.worldmonitor.workers.dev`) for data. For local API development, see [Self-Hosting](#self-hosting).
 
 ### Environment Variables (Optional)
 
@@ -325,7 +295,7 @@ The dashboard works without any API keys — panels for unconfigured services si
 cp .env.example .env.local
 ```
 
-The `.env.example` file documents every variable with descriptions and registration links, organized by deployment target (Vercel vs Railway). Key groups:
+The `.env.example` file documents every variable with descriptions and registration links, organized by deployment target (Cloudflare vs Heroku). Key groups:
 
 | Group             | Variables                                                                  | Free Tier                                  |
 | ----------------- | -------------------------------------------------------------------------- | ------------------------------------------ |
@@ -335,7 +305,7 @@ The `.env.example` file documents every variable with descriptions and registrat
 | **Markets**       | `FINNHUB_API_KEY`, `FRED_API_KEY`, `EIA_API_KEY`                           | All free tier                              |
 | **Tracking**      | `WINGBITS_API_KEY`, `AISSTREAM_API_KEY`                                    | Free                                       |
 | **Geopolitical**  | `ACLED_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `NASA_FIRMS_API_KEY`         | Free for researchers                       |
-| **Relay**         | `WS_RELAY_URL`, `VITE_WS_RELAY_URL`, `OPENSKY_CLIENT_ID/SECRET`            | Self-hosted                                |
+| **Relay**         | `HEROKU_RELAY_URL`, `VITE_WS_RELAY_URL`, `OPENSKY_CLIENT_ID/SECRET`        | Self-hosted                                |
 | **UI**            | `VITE_VARIANT`, `VITE_MAP_INTERACTION_MODE` (`flat` or `3d`, default `3d`) | N/A                                        |
 | **Observability** | `VITE_SENTRY_DSN` (optional, empty disables reporting)                     | N/A                                        |
 
@@ -345,57 +315,60 @@ See [`.env.example`](./.env.example) for the complete list with registration lin
 
 ## Self-Hosting
 
-World Monitor relies on **60+ Vercel Edge Functions** in the `api/` directory for RSS proxying, data caching, and API key isolation. Running `npm run dev` alone starts only the Vite frontend — the edge functions won't execute, and most panels (news feeds, markets, AI summaries) will be empty.
+World Monitor uses **Cloudflare Workers** for the API layer and **Cloudflare Pages** for the frontend. The `api/` directory contains **Vercel Edge Functions** as a fallback option.
 
-### Option 1: Deploy to Vercel (Recommended)
+### Option 1: Deploy to Cloudflare (Current)
 
-The simplest path — Vercel runs the edge functions natively on their free tier:
+**Frontend (Cloudflare Pages):**
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name worldmonitor
+```
+
+**API (Cloudflare Workers):**
+
+```bash
+npx wrangler deploy    # Deploys workers/index.ts
+```
+
+Add your API keys in the Cloudflare dashboard under **Workers → Settings → Variables**.
+
+### Option 2: Deploy to Vercel (Fallback)
+
+Vercel can run the edge functions in the `api/` directory:
 
 ```bash
 npm install -g vercel
 vercel          # Follow prompts to link/create project
 ```
 
-Add your API keys in the Vercel dashboard under **Settings → Environment Variables**, then visit your deployment URL. The free Hobby plan supports all 60+ edge functions.
+Add your API keys in the Vercel dashboard under **Settings → Environment Variables**.
 
-### Option 2: Local Development with Vercel CLI
-
-To run everything locally (frontend + edge functions):
-
-```bash
-npm install -g vercel
-cp .env.example .env.local   # Add your API keys
-vercel dev                   # Starts on http://localhost:3000
-```
-
-> **Important**: Use `vercel dev` instead of `npm run dev`. The Vercel CLI emulates the edge runtime locally so all `api/` endpoints work. Plain `npm run dev` only starts Vite and the API layer won't be available.
-
-### Option 3: Static Frontend Only
-
-If you only want the map and client-side features (no news feeds, no AI, no market data):
+### Option 3: Local Development
 
 ```bash
 npm run dev    # Vite dev server on http://localhost:5173
 ```
 
-This runs the frontend without the API layer. Panels that require server-side proxying will show "No data available". The interactive map, static data layers (bases, cables, pipelines), and browser-side ML models still work.
+The frontend connects to the production Worker API. For full local development with the API, use the Vite proxy configuration in `vite.config.ts`.
 
 ### Platform Notes
 
 | Platform               | Status                  | Notes                                                                                                                          |
 | ---------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Vercel**             | Full support            | Recommended deployment target                                                                                                  |
-| **Linux x86_64**       | Full support            | Works with `vercel dev` for local development. Desktop .AppImage available for x86_64. WebKitGTK rendering uses DMA-BUF with fallback to SHM for GPU compatibility. Font stack includes DejaVu Sans Mono and Liberation Mono for consistent rendering across distros |
-| **macOS**              | Works with `vercel dev` | Full local development                                                                                                         |
-| **Raspberry Pi / ARM** | Partial                 | `vercel dev` edge runtime emulation may not work on ARM. Use Option 1 (deploy to Vercel) or Option 3 (static frontend) instead |
+| **Cloudflare**         | Full support            | Current deployment target (Workers + Pages)                                                                                    |
+| **Vercel**             | Full support            | Fallback deployment target                                                                                                     |
+| **Linux x86_64**       | Full support            | Desktop .AppImage available for x86_64                                                                                         |
+| **macOS**              | Full support            | Full local development                                                                                                         |
 | **Docker**             | Planned                 | See [Roadmap](#roadmap)                                                                                                        |
 
-### Railway Relay (Optional)
+### Heroku Relay (Optional)
 
-The Railway relay is a multi-protocol gateway that handles data sources requiring persistent connections, residential proxying, or upstream APIs that block Vercel's edge runtime:
+The Heroku relay is a multi-protocol gateway that handles data sources requiring persistent connections or residential proxying:
 
 ```bash
-# On Railway, deploy with:
+# On Heroku, deploy with:
 node scripts/ais-relay.cjs
 ```
 
@@ -405,10 +378,8 @@ node scripts/ais-relay.cjs
 | **OpenSky Aircraft**    | REST (polling)  | Military flight tracking across merged query regions                 |
 | **Telegram OSINT**      | MTProto (GramJS)| 26 OSINT channels polled on 60s cycle with FLOOD_WAIT handling       |
 | **OREF Rocket Alerts**  | curl + proxy    | Israel Home Front Command sirens via residential proxy (Akamai WAF)  |
-| **Polymarket Proxy**    | HTTPS           | JA3 fingerprint bypass with request queuing and cache deduplication   |
-| **ICAO NOTAM**          | REST            | Airport/airspace closure detection for 46 MENA airports              |
 
-Set `WS_RELAY_URL` (server-side, HTTPS) and `VITE_WS_RELAY_URL` (client-side, WSS) in your environment. Without the relay, AIS, OpenSky, Telegram, and OREF layers won't show live data, but all other features work normally.
+Set `HEROKU_RELAY_URL` and `VITE_WS_RELAY_URL` in your environment. Without the relay, AIS, OpenSky, Telegram, and OREF layers won't show live data, but all other features work normally.
 
 ---
 
@@ -427,7 +398,7 @@ Set `WS_RELAY_URL` (server-side, HTTPS) and `VITE_WS_RELAY_URL` (client-side, WS
 | **Localization**      | i18next (21 languages: en, bg, ro, fr, de, es, it, pl, pt, nl, sv, ru, ar, zh, ja, tr, th, vi, cs, el, ko), RTL support, lazy-loaded bundles, native-language feeds for 21 locales with one-time locale boost |
 | **API Contracts**     | Protocol Buffers (92 proto files, 22 services), sebuf HTTP annotations, buf CLI (lint + breaking checks), auto-generated TypeScript clients/servers + OpenAPI 3.1.0 docs |
 | **Analytics**         | Vercel Analytics (privacy-first, lightweight web vitals and page view tracking)                                                                 |
-| **Deployment**        | Vercel Edge Functions (60+ endpoints) + Railway (WebSocket relay + Telegram + OREF + Polymarket proxy + NOTAM) + Tauri (macOS/Windows/Linux) + PWA (installable) |
+| **Deployment**        | Cloudflare Workers + Pages (primary), Vercel Edge Functions (fallback), Heroku (WebSocket relay + Telegram + OREF), Tauri (macOS/Windows/Linux), PWA (installable) |
 | **Finance Data**      | 92 stock exchanges, 19 financial centers, 13 central banks, 10 commodity hubs, 64 Gulf FDI investments                                         |
 | **Data**              | 435+ RSS feeds across all 4 variants, ADS-B transponders, AIS maritime data, VIIRS satellite imagery, 30+ live video channels (8+ default YouTube + 18+ HLS native), 26 Telegram OSINT channels |
 
@@ -441,11 +412,11 @@ Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed gui
 
 ```bash
 # Development
-npm run dev          # Full variant (worldmonitor.app)
-npm run dev:tech     # Tech variant (tech.worldmonitor.app)
-npm run dev:finance    # Finance variant (finance.worldmonitor.app)
-npm run dev:commodity  # Commodity variant (commodity.worldmonitor.app)
-npm run dev:happy      # Happy variant (happy.worldmonitor.app)
+npm run dev          # Full variant (World Monitor)
+npm run dev:tech     # Tech variant (Tech Monitor)
+npm run dev:finance  # Finance variant (Finance Monitor)
+npm run dev:commodity  # Commodity variant
+npm run dev:happy      # Happy variant
 
 # Production builds
 npm run build:full       # Build full variant
@@ -568,10 +539,7 @@ If you discover a vulnerability, please see our [Security Policy](./SECURITY.md)
 ---
 
 <p align="center">
-  <a href="https://worldmonitor.app">worldmonitor.app</a> &nbsp;·&nbsp;
-  <a href="https://tech.worldmonitor.app">tech.worldmonitor.app</a> &nbsp;·&nbsp;
-  <a href="https://finance.worldmonitor.app">finance.worldmonitor.app</a> &nbsp;·&nbsp;
-  <a href="https://commodity.worldmonitor.app">commodity.worldmonitor.app</a>
+  <a href="https://4tlas.pages.dev">4tlas.pages.dev</a>
 </p>
 
 ## Star History
