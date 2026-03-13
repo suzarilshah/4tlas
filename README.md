@@ -1,13 +1,12 @@
-# World Monitor
+# 4tlas
 
 **Real-time global intelligence dashboard** — AI-powered news aggregation, geopolitical monitoring, and infrastructure tracking in a unified situational awareness interface.
 
-[![GitHub stars](https://img.shields.io/github/stars/koala73/worldmonitor?style=social)](https://github.com/koala73/worldmonitor/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/koala73/worldmonitor?style=social)](https://github.com/koala73/worldmonitor/network/members)
+[![GitHub stars](https://img.shields.io/github/stars/suzarilshah/4tlas?style=social)](https://github.com/suzarilshah/4tlas/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/suzarilshah/4tlas?style=social)](https://github.com/suzarilshah/4tlas/network/members)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Last commit](https://img.shields.io/github/last-commit/koala73/worldmonitor)](https://github.com/koala73/worldmonitor/commits/main)
-[![Latest release](https://img.shields.io/github/v/release/koala73/worldmonitor?style=flat)](https://github.com/koala73/worldmonitor/releases/latest)
+[![Last commit](https://img.shields.io/github/last-commit/suzarilshah/4tlas)](https://github.com/suzarilshah/4tlas/commits/main)
 
 <p align="center">
   <a href="https://4tlas.pages.dev"><img src="https://img.shields.io/badge/Web_App-4tlas.pages.dev-blue?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Web App"></a>
@@ -15,14 +14,14 @@
 
 <p align="center">
   <a href="./docs/DOCUMENTATION.md"><strong>Full Documentation</strong></a> &nbsp;·&nbsp;
-  <a href="https://github.com/koala73/worldmonitor/releases/latest"><strong>All Releases</strong></a>
+  <a href="https://github.com/suzarilshah/4tlas/releases"><strong>All Releases</strong></a>
 </p>
 
-![World Monitor Dashboard](docs/images/worldmonitor-7-mar-2026.jpg)
+![4tlas Dashboard](docs/images/worldmonitor-7-mar-2026.jpg)
 
 ---
 
-## Why World Monitor?
+## Why 4tlas?
 
 | Problem                            | Solution                                                                                                   |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -45,7 +44,7 @@
 
 | Variant             | URL                                                          | Focus                                            |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------ |
-| **World Monitor**   | [4tlas.pages.dev](https://4tlas.pages.dev)                   | Geopolitics, military, conflicts, infrastructure |
+| **4tlas**           | [4tlas.pages.dev](https://4tlas.pages.dev)                   | Geopolitics, military, conflicts, infrastructure |
 
 The codebase supports multiple variants (Tech, Finance, Commodity, Happy) — switch between them via the header bar or build with different `VITE_VARIANT` values.
 
@@ -205,13 +204,13 @@ The codebase supports multiple variants (Tech, Finance, Commodity, Happy) — sw
 
 A single codebase produces multiple specialized dashboards, each with distinct feeds, panels, map layers, and branding:
 
-| Aspect                | World Monitor                                        | Tech Monitor                                    | Finance Monitor                                  |
+| Aspect                | 4tlas                                                | Tech Variant                                    | Finance Variant                                  |
 | --------------------- | ---------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------ |
 | **Focus**             | Geopolitics, military, conflicts                     | AI/ML, startups, cybersecurity                  | Markets, trading, central banks                  |
 | **RSS Feeds**         | 15 categories, 200+ feeds (politics, MENA, Africa, think tanks) | 21 categories, 152 feeds (AI, VC blogs, startups, GitHub) | 14 categories, 55 feeds (forex, bonds, commodities, IPOs) |
 | **Panels**            | 45 (strategic posture, CII, cascade, trade policy, airline intel, predictions) | 28 (AI labs, unicorns, accelerators, tech readiness) | 27 (forex, bonds, derivatives, trade policy, gulf economies) |
 | **Unique Map Layers** | Military bases, nuclear facilities, hotspots         | Tech HQs, cloud regions, startup hubs           | Stock exchanges, central banks, Gulf investments |
-| **Desktop App**       | World Monitor.app / .exe / .AppImage                 | Tech Monitor.app / .exe / .AppImage             | Finance Monitor.app / .exe / .AppImage           |
+| **Desktop App**       | 4tlas.app / .exe / .AppImage                         | 4tlas-tech.app / .exe / .AppImage               | 4tlas-finance.app / .exe / .AppImage             |
 
 Build-time `VITE_VARIANT` tree-shakes unused data. Runtime variant selector in the header bar.
 
@@ -277,8 +276,8 @@ The test suite includes **30 test files** with **554 individual test cases** acr
 
 ```bash
 # Clone and run
-git clone https://github.com/koala73/worldmonitor.git
-cd worldmonitor
+git clone https://github.com/suzarilshah/4tlas.git
+cd 4tlas
 npm install
 npm run dev      # Starts Vite dev server
 ```
@@ -315,7 +314,7 @@ See [`.env.example`](./.env.example) for the complete list with registration lin
 
 ## Self-Hosting
 
-World Monitor uses **Cloudflare Workers** for the API layer and **Cloudflare Pages** for the frontend. The `api/` directory contains **Vercel Edge Functions** as a fallback option.
+4tlas uses **Cloudflare Workers** for the API layer and **Cloudflare Pages** for the frontend. The `api/` directory contains **Vercel Edge Functions** as a fallback option.
 
 ### Option 1: Deploy to Cloudflare (Current)
 
@@ -412,7 +411,7 @@ Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed gui
 
 ```bash
 # Development
-npm run dev          # Full variant (World Monitor)
+npm run dev          # Full variant (4tlas)
 npm run dev:tech     # Tech variant (Tech Monitor)
 npm run dev:finance  # Finance variant (Finance Monitor)
 npm run dev:commodity  # Commodity variant
@@ -429,10 +428,10 @@ npm run build:happy      # Build happy variant
 npm run typecheck    # TypeScript type checking (tsc --noEmit)
 
 # Desktop packaging
-npm run desktop:package:macos:full      # .app + .dmg (World Monitor)
+npm run desktop:package:macos:full      # .app + .dmg (4tlas)
 npm run desktop:package:macos:tech      # .app + .dmg (Tech Monitor)
 npm run desktop:package:macos:finance   # .app + .dmg (Finance Monitor)
-npm run desktop:package:windows:full    # .exe + .msi (World Monitor)
+npm run desktop:package:windows:full    # .exe + .msi (4tlas)
 npm run desktop:package:windows:tech    # .exe + .msi (Tech Monitor)
 npm run desktop:package:windows:finance # .exe + .msi (Finance Monitor)
 
@@ -466,7 +465,7 @@ See [full roadmap](./docs/DOCUMENTATION.md#roadmap).
 
 ## Support the Project
 
-If you find World Monitor useful:
+If you find 4tlas useful:
 
 - **Star this repo** to help others discover it
 - **Share** with colleagues interested in OSINT
@@ -483,7 +482,7 @@ This project is licensed under the **GNU Affero General Public License v3.0 (AGP
 
 **You are free to:**
 
-- **Use** — run World Monitor for any purpose, including commercial use
+- **Use** — run 4tlas for any purpose, including commercial use
 - **Study** — read, audit, and learn from the source code
 - **Modify** — adapt, extend, and build upon the code
 - **Distribute** — share copies with anyone
@@ -522,8 +521,8 @@ Copyright (C) 2024-2026 Elie Habib. All rights reserved under AGPL-3.0.
 
 ## Contributors
 
-<a href="https://github.com/koala73/worldmonitor/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=koala73/worldmonitor" />
+<a href="https://github.com/suzarilshah/4tlas/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=suzarilshah/4tlas" />
 </a>
 
 ---
@@ -544,9 +543,9 @@ If you discover a vulnerability, please see our [Security Policy](./SECURITY.md)
 
 ## Star History
 
-<a href="https://api.star-history.com/svg?repos=koala73/worldmonitor&type=Date">
+<a href="https://api.star-history.com/svg?repos=suzarilshah/4tlas&type=Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=koala73/worldmonitor&type=Date&type=Date&theme=dark" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=koala73/worldmonitor&type=Date&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=suzarilshah/4tlas&type=Date&theme=dark" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=suzarilshah/4tlas&type=Date" />
  </picture>
 </a>
