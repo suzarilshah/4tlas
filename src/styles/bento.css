@@ -1191,6 +1191,20 @@ body:has(.bento-dashboard) .header {
    ATLAS PANEL - Multi-Agent Intelligence Analysis
    ══════════════════════════════════════════════════════════════════════════ */
 
+/* ATLAS panel spans 2 columns on larger screens for prominence */
+.bento-atlas,
+.atlas-panel-wrapper {
+  grid-column: span 2;
+  min-height: 400px;
+}
+
+@media (max-width: 1200px) {
+  .bento-atlas,
+  .atlas-panel-wrapper {
+    grid-column: span 1;
+  }
+}
+
 .atlas-panel {
   background: var(--bento-surface);
   border: 1px solid var(--bento-border);

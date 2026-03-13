@@ -19,6 +19,7 @@ export * from '../entities';
 export const DEFAULT_PANELS: Record<string, PanelConfig> = {
   map: { name: 'Global Map', enabled: true, priority: 1 },
   'live-news': { name: 'Live News', enabled: true, priority: 1 },
+  atlas: { name: 'ATLAS Intelligence', enabled: true, priority: 1 },
   intel: { name: 'Intel Feed', enabled: true, priority: 1 },
   'gdelt-intel': { name: 'Live Intelligence', enabled: true, priority: 1 },
   cii: { name: 'Country Instability', enabled: true, priority: 1 },
@@ -48,7 +49,6 @@ export const DEFAULT_PANELS: Record<string, PanelConfig> = {
   'etf-flows': { name: 'BTC ETF Tracker', enabled: true, priority: 2 },
   stablecoins: { name: 'Stablecoins', enabled: true, priority: 2 },
   monitors: { name: 'My Monitors', enabled: true, priority: 2 },
-  atlas: { name: 'ATLAS Intelligence', enabled: true, priority: 1 },
 };
 
 // Map layers for geopolitical view
