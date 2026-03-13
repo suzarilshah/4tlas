@@ -34,6 +34,12 @@ export const PLAINTEXT_KEYS = new Set<RuntimeSecretKey>([
 export const MASKED_SENTINEL = '__WM_MASKED__';
 
 export const HUMAN_LABELS: Record<RuntimeSecretKey, string> = {
+  AZURE_AI_ENDPOINT: 'Azure AI Endpoint',
+  AZURE_AI_KEY: 'Azure AI API Key',
+  AZURE_AI_DEPLOYMENT: 'Azure AI Deployment',
+  AZURE_OPENAI_ENDPOINT: 'Azure OpenAI Endpoint',
+  AZURE_OPENAI_API_KEY: 'Azure OpenAI API Key',
+  AZURE_OPENAI_DEPLOYMENT: 'Azure OpenAI Deployment',
   GROQ_API_KEY: 'Groq API Key',
   OPENROUTER_API_KEY: 'OpenRouter API Key',
   FRED_API_KEY: 'FRED API Key',

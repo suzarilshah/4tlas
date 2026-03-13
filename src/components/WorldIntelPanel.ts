@@ -169,13 +169,13 @@ export class WorldIntelPanel extends Panel {
   private renderSpaceWeather(container: HTMLElement, m: typeof import('@/services/space-weather')): void {
     container.innerHTML = `<div class="wi-loading">${t('common.loading')}</div>`;
 
-    void m.getSpaceWeather().then(data => {
-      if (!data) {
+    void m.fetchSpaceWeather().then((result) => {
+      if (!result.ok || !result.data) {
         container.innerHTML = `<div class="wi-empty">${t('components.spaceWeather.noData')}</div>`;
         return;
       }
 
-      const { currentKp, kpLevel, kpTrend, latestFlareClass, flareIntensity, alerts, kpRecent } = data;
+      const { currentKp, kpLevel, kpTrend, latestFlareClass, flareIntensity, alerts, kpRecent } = result.data;
       const kpColor = m.getKpSeverityColor(kpLevel);
       const kpIcon = m.getKpIcon(kpLevel);
       const trendArrow = kpTrend === 'rising' ? '↗️' : kpTrend === 'falling' ? '↘️' : '↔️';
@@ -188,14 +188,14 @@ export class WorldIntelPanel extends Panel {
       // Sparkline
       let sparklineHtml = '<div class="sw-sparkline sw-sparkline-empty">--</div>';
       if (kpRecent.length >= 2) {
-        const maxKp = Math.max(...kpRecent.map(r => r.kp), 5);
+        const maxKp = Math.max(...kpRecent.map((r: { time: string; kp: number }) => r.kp), 5);
         const width = 100, height = 30;
-        const points = kpRecent.map((r, i) => {
+        const points = kpRecent.map((r: { time: string; kp: number }, i: number) => {
           const x = (i / (kpRecent.length - 1)) * width;
           const y = height - (r.kp / maxKp) * height;
           return `${x},${y}`;
         }).join(' ');
-        const maxKpInRecent = Math.max(...kpRecent.map(r => r.kp));
+        const maxKpInRecent = Math.max(...kpRecent.map((r: { time: string; kp: number }) => r.kp));
         const lineColor = maxKpInRecent >= 5 ? '#ff4500' : maxKpInRecent >= 4 ? '#ffd700' : '#00ff00';
         sparklineHtml = `<svg class="sw-sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
           <polyline points="${points}" fill="none" stroke="${lineColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -204,7 +204,7 @@ export class WorldIntelPanel extends Panel {
 
       // Alerts (limit to 2)
       const alertsHtml = alerts.length > 0
-        ? alerts.slice(0, 2).map(a => {
+        ? alerts.slice(0, 2).map((a: { type: string; severity: string; issueTime: string; message: string }) => {
             const typeIcon = a.type === 'warning' ? '⚠️' : a.type === 'watch' ? '👀' : a.type === 'alert' ? '🚨' : '📝';
             const time = new Date(a.issueTime);
             const timeStr = time.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
@@ -249,13 +249,13 @@ export class WorldIntelPanel extends Panel {
   private renderHealthOutbreaks(container: HTMLElement, m: typeof import('@/services/health-outbreaks')): void {
     container.innerHTML = `<div class="wi-loading">${t('common.loading')}</div>`;
 
-    void m.getHealthOutbreaks().then(data => {
-      if (!data || data.items.length === 0) {
+    void m.fetchHealthOutbreaks().then((result) => {
+      if (!result.ok || !result.data || result.data.items.length === 0) {
         container.innerHTML = `<div class="wi-empty">${t('components.healthOutbreaks.noAlerts')}</div>`;
         return;
       }
 
-      const { items, highConcernCount, byOrganization } = data;
+      const { items, highConcernCount, byOrganization } = result.data;
 
       // Stats
       const statsHtml = `
@@ -289,7 +289,7 @@ export class WorldIntelPanel extends Panel {
         const date = new Date(item.publishedAt);
         const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
         const pathogenBadges = item.pathogensDetected.slice(0, 2)
-          .map(p => `<span class="ho-pathogen-badge">${escapeHtml(p)}</span>`)
+          .map((p: string) => `<span class="ho-pathogen-badge">${escapeHtml(p)}</span>`)
           .join('');
 
         return `<a href="${escapeHtml(item.link)}" target="_blank" rel="noopener" class="ho-alert ho-alert-${item.severity} ${item.isHighConcern ? 'ho-high-concern' : ''}">
@@ -393,13 +393,13 @@ export class WorldIntelPanel extends Panel {
   private renderShipping(container: HTMLElement, m: typeof import('@/services/shipping-stress')): void {
     container.innerHTML = `<div class="wi-loading">${t('common.loading')}</div>`;
 
-    void m.getShippingStress().then(data => {
-      if (!data) {
+    void m.fetchShippingStress().then((result) => {
+      if (!result.ok || !result.data) {
         container.innerHTML = `<div class="wi-empty">${t('components.shipping.noData')}</div>`;
         return;
       }
 
-      const { quotes, stressScore, stressLevel, signals } = data;
+      const { quotes, stressScore, stressLevel, signals } = result.data;
       const stressColor = m.getStressColor(stressLevel);
       const stressIcon = m.getStressIcon(stressLevel);
 
@@ -420,11 +420,11 @@ export class WorldIntelPanel extends Panel {
 
       // Signals (limit to 2)
       const signalsHtml = signals.length > 0
-        ? `<div class="ss-signals">${signals.slice(0, 2).map(s => `<span class="ss-signal">${escapeHtml(s)}</span>`).join('')}</div>`
+        ? `<div class="ss-signals">${signals.slice(0, 2).map((s: string) => `<span class="ss-signal">${escapeHtml(s)}</span>`).join('')}</div>`
         : '';
 
       // Quotes table (limit to 4)
-      const quotesHtml = quotes.slice(0, 4).map(quote => {
+      const quotesHtml = quotes.slice(0, 4).map((quote: { symbol: string; name: string; type: string; price: number | null; changePct: number | null; volume: number | null }) => {
         const changeStr = m.formatChangePct(quote.changePct);
         const changeClass = quote.changePct === null ? '' : quote.changePct >= 0 ? 'ss-positive' : 'ss-negative';
         const priceStr = quote.price !== null ? `$${quote.price.toFixed(2)}` : '--';
