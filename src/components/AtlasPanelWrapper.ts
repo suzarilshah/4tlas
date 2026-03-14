@@ -61,8 +61,11 @@ export class AtlasPanelWrapper extends Panel {
       console.log('[ATLAS-WRAPPER] setContent called');
 
       // Attach event listeners AFTER content is in DOM
-      attachEventListeners();
-      console.log('[ATLAS-WRAPPER] Event listeners attached');
+      // Panel.setContent debounces for 150ms, so we must wait before attaching
+      setTimeout(() => {
+        attachEventListeners();
+        console.log('[ATLAS-WRAPPER] Event listeners attached');
+      }, 200);
     } catch (error) {
       console.error('[ATLAS-WRAPPER] init() failed:', error);
       this.setContent(`
