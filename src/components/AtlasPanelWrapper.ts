@@ -33,6 +33,11 @@ export class AtlasPanelWrapper extends Panel {
         </div>
       </div>
     `);
+
+    // Initialize immediately (onMount is not called by Panel base class)
+    this.init().catch((err) => {
+      console.error('[ATLAS-WRAPPER] Constructor init failed:', err);
+    });
   }
 
   async init(): Promise<void> {
