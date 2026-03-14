@@ -104,7 +104,7 @@ export function getApiBaseUrl(): string {
       const host = window.location.hostname;
       // Production: Cloudflare Pages, Vercel, or preview deployments
       if (host === '4tlas.pages.dev' || host.endsWith('.4tlas.pages.dev') ||
-          host.endsWith('.worldmonitor-ag4.pages.dev') ||
+          host === 'worldmonitor-ag4.pages.dev' || host.endsWith('.worldmonitor-ag4.pages.dev') ||
           host.endsWith('.vercel.app') || host === 'insanprihatin-lovat.vercel.app') {
         return 'https://4tlas-api.worldmonitor.workers.dev';
       }
