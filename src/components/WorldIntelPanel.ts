@@ -100,22 +100,25 @@ export class WorldIntelPanel extends Panel {
       </div>
     `);
 
-    // Attach tab click handlers
-    const tabButtons = this.getElement().querySelectorAll('.wi-tab');
-    tabButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tabId = btn.getAttribute('data-tab') as TabId;
-        if (tabId && tabId !== this.activeTab) {
-          this.switchTab(tabId);
-        }
+    // Wait for setContent debounce (150ms) before attaching handlers
+    setTimeout(() => {
+      // Attach tab click handlers
+      const tabButtons = this.getElement().querySelectorAll('.wi-tab');
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.getAttribute('data-tab') as TabId;
+          if (tabId && tabId !== this.activeTab) {
+            this.switchTab(tabId);
+          }
+        });
       });
-    });
 
-    // Store content container reference
-    this.tabContent = this.getElement().querySelector('#wiContent');
+      // Store content container reference
+      this.tabContent = this.getElement().querySelector('#wiContent');
 
-    // Load initial tab
-    void this.loadTab(this.activeTab);
+      // Load initial tab
+      void this.loadTab(this.activeTab);
+    }, 200);
   }
 
   private switchTab(tabId: TabId): void {
