@@ -78,7 +78,8 @@ let atlasEnabled = false;
 async function fetchAtlasStatus(): Promise<{ enabled: boolean; agents: string[]; provider: string }> {
   const baseUrl = getApiBaseUrl();
   const url = `${baseUrl}/api/atlas/status`;
-  console.log('[ATLAS] Fetching status from:', url);
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
+  console.log('[ATLAS] Hostname:', hostname, '| BaseURL:', baseUrl, '| Full URL:', url);
 
   try {
     const response = await fetch(url);
@@ -93,8 +94,9 @@ async function fetchAtlasStatus(): Promise<{ enabled: boolean; agents: string[];
 
     // Check if response is JSON
     if (!text.trim().startsWith('{')) {
-      console.error('[ATLAS] Status response is not JSON:', text.substring(0, 100));
-      throw new Error('Invalid response format (expected JSON)');
+      console.error('[ATLAS] Status response is not JSON. First 200 chars:', text.substring(0, 200));
+      console.error('[ATLAS] Response headers:', Object.fromEntries(response.headers.entries()));
+      throw new Error(`Invalid response format - got: ${text.substring(0, 50)}...`);
     }
 
     const data = JSON.parse(text);
@@ -124,8 +126,8 @@ async function fetchAtlasRegions(): Promise<AtlasRegion[]> {
 
     // Check if response is JSON
     if (!text.trim().startsWith('{')) {
-      console.error('[ATLAS] Regions response is not JSON:', text.substring(0, 100));
-      throw new Error('Invalid response format (expected JSON)');
+      console.error('[ATLAS] Regions response is not JSON. First 200 chars:', text.substring(0, 200));
+      throw new Error(`Invalid response format - got: ${text.substring(0, 50)}...`);
     }
 
     const data = JSON.parse(text);
