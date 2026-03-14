@@ -757,10 +757,10 @@ export class PanelLayoutManager implements AppModule {
       );
     }
 
-    // Global Giving panel (all variants)
-    this.lazyPanel('giving', () =>
-      import('@/components/GivingPanel').then(m => new m.GivingPanel()),
-    );
+    // Global Giving panel - DISABLED (API endpoint not implemented)
+    // this.lazyPanel('giving', () =>
+    //   import('@/components/GivingPanel').then(m => new m.GivingPanel()),
+    // );
 
     // Happy variant panels (lazy-loaded — only relevant for happy variant)
     if (SITE_VARIANT === 'happy') {
