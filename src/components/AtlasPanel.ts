@@ -84,13 +84,20 @@ async function fetchAtlasStatus(): Promise<{ enabled: boolean; agents: string[];
     const response = await fetch(url);
     console.log('[ATLAS] Status response:', response.status, response.statusText);
 
+    const text = await response.text();
+    console.log('[ATLAS] Status raw response:', text.substring(0, 200));
+
     if (!response.ok) {
-      const text = await response.text();
-      console.error('[ATLAS] Status error response:', text);
-      throw new Error(`HTTP ${response.status}: ${text}`);
+      throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
     }
 
-    const data = await response.json();
+    // Check if response is JSON
+    if (!text.trim().startsWith('{')) {
+      console.error('[ATLAS] Status response is not JSON:', text.substring(0, 100));
+      throw new Error('Invalid response format (expected JSON)');
+    }
+
+    const data = JSON.parse(text);
     console.log('[ATLAS] Status data:', data);
     return data;
   } catch (error) {
@@ -108,13 +115,20 @@ async function fetchAtlasRegions(): Promise<AtlasRegion[]> {
     const response = await fetch(url);
     console.log('[ATLAS] Regions response:', response.status, response.statusText);
 
+    const text = await response.text();
+    console.log('[ATLAS] Regions raw response:', text.substring(0, 200));
+
     if (!response.ok) {
-      const text = await response.text();
-      console.error('[ATLAS] Regions error response:', text);
-      throw new Error(`HTTP ${response.status}: ${text}`);
+      throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
     }
 
-    const data = await response.json();
+    // Check if response is JSON
+    if (!text.trim().startsWith('{')) {
+      console.error('[ATLAS] Regions response is not JSON:', text.substring(0, 100));
+      throw new Error('Invalid response format (expected JSON)');
+    }
+
+    const data = JSON.parse(text);
     console.log('[ATLAS] Regions data:', data);
     return data.regions || [];
   } catch (error) {
