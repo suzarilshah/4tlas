@@ -3,7 +3,11 @@
  * Displays real-time agent activity and threat correlations
  */
 
+console.log('[ATLAS] Module loading...');
+
 import { getApiBaseUrl } from '../services/runtime';
+
+console.log('[ATLAS] Module loaded successfully');
 
 // ============================================================================
 // Types
@@ -516,10 +520,8 @@ export async function initAtlasPanel() {
       { id: 'europe', name: 'Europe', countries: ['Ukraine', 'Russia', 'Poland'] },
     ];
   }
-
-  // Attach initial event listeners
-  attachEventListeners();
+  // Note: attachEventListeners() must be called AFTER the panel content is rendered to DOM
 }
 
 // Export for external use
-export { currentAnalysis, isAnalyzing, selectedRegion };
+export { currentAnalysis, isAnalyzing, selectedRegion, attachEventListeners };

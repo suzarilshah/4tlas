@@ -3,8 +3,12 @@
  * Wraps the AtlasPanel for integration with World Monitor's panel system
  */
 
+console.log('[ATLAS-WRAPPER] Module loading...');
+
 import { Panel } from './Panel';
-import { renderAtlasPanel, initAtlasPanel } from './AtlasPanel';
+import { renderAtlasPanel, initAtlasPanel, attachEventListeners } from './AtlasPanel';
+
+console.log('[ATLAS-WRAPPER] Module loaded successfully');
 
 export class AtlasPanelWrapper extends Panel {
   private initialized = false;
@@ -55,6 +59,10 @@ export class AtlasPanelWrapper extends Panel {
       console.log('[ATLAS-WRAPPER] renderAtlasPanel returned content length:', content.length);
       this.setContent(content);
       console.log('[ATLAS-WRAPPER] setContent called');
+
+      // Attach event listeners AFTER content is in DOM
+      attachEventListeners();
+      console.log('[ATLAS-WRAPPER] Event listeners attached');
     } catch (error) {
       console.error('[ATLAS-WRAPPER] init() failed:', error);
       this.setContent(`
