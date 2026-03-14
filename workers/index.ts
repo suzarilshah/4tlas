@@ -2241,8 +2241,38 @@ export default {
           }
         }
 
-        // 404 for unknown API routes
-        return json({ error: 'Not found' }, 404, corsHeaders(origin));
+        // Fallback: Proxy unknown API routes to Vercel
+        // This handles endpoints not yet implemented in the Worker
+        const vercelApiUrl = `https://insanprihatin-lovat.vercel.app${path}${url.search}`;
+        try {
+          const vercelResponse = await fetch(vercelApiUrl, {
+            method: request.method,
+            headers: {
+              'Content-Type': request.headers.get('Content-Type') || 'application/json',
+              'Accept': 'application/json',
+              // Pass Origin/Referer so Vercel recognizes trusted browser requests
+              'Origin': origin || '',
+              'Referer': request.headers.get('Referer') || '',
+              'User-Agent': request.headers.get('User-Agent') || '',
+            },
+            body: request.method !== 'GET' && request.method !== 'HEAD' ? await request.text() : undefined,
+          });
+
+          const contentType = vercelResponse.headers.get('content-type') || 'application/json';
+          const body = await vercelResponse.text();
+
+          return new Response(body, {
+            status: vercelResponse.status,
+            headers: {
+              'Content-Type': contentType,
+              'Cache-Control': 'public, max-age=30',
+              ...corsHeaders(origin),
+            },
+          });
+        } catch (err) {
+          console.error('Vercel proxy failed:', err);
+          return json({ error: 'API proxy failed', details: String(err) }, 502, corsHeaders(origin));
+        }
       }
 
       // For non-API routes, this worker shouldn't handle them
