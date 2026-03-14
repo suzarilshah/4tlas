@@ -128,7 +128,8 @@ export class TechHubsPanel extends Panel {
     }).join('');
 
     this.setContent(html);
-    this.bindEvents();
+    // Wait for setContent debounce (150ms) before binding events
+    setTimeout(() => this.bindEvents(), 200);
   }
 
   private bindEvents(): void {

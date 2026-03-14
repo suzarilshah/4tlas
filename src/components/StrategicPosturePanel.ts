@@ -473,7 +473,8 @@ export class StrategicPosturePanel extends Panel {
     `;
 
     this.setContent(html);
-    this.attachEventListeners();
+    // Wait for setContent debounce (150ms) before attaching event listeners
+    setTimeout(() => this.attachEventListeners(), 200);
   }
 
   private attachEventListeners(): void {

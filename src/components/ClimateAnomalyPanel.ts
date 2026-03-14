@@ -70,12 +70,15 @@ export class ClimateAnomalyPanel extends Panel {
       </div>
     `);
 
-    this.content.querySelectorAll('.climate-row').forEach(el => {
-      el.addEventListener('click', () => {
-        const lat = Number((el as HTMLElement).dataset.lat);
-        const lon = Number((el as HTMLElement).dataset.lon);
-        if (Number.isFinite(lat) && Number.isFinite(lon)) this.onZoneClick?.(lat, lon);
+    // Wait for setContent debounce (150ms) before attaching handlers
+    setTimeout(() => {
+      this.content.querySelectorAll('.climate-row').forEach(el => {
+        el.addEventListener('click', () => {
+          const lat = Number((el as HTMLElement).dataset.lat);
+          const lon = Number((el as HTMLElement).dataset.lon);
+          if (Number.isFinite(lat) && Number.isFinite(lon)) this.onZoneClick?.(lat, lon);
+        });
       });
-    });
+    }, 200);
   }
 }
